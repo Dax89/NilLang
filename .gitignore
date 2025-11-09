@@ -1,0 +1,5 @@
+.*
+!/.gitignore
+.automaton
+compile_commands.json
+build
