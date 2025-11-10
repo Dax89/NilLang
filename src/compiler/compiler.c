@@ -93,7 +93,7 @@ bool nilcompiler_compile(Nil* self, const char* source) {
         nilcompiler_advance(self);
     }
 
-    nilop_emit_ret(self, true);
+    nilop_emit(self, NILOP_RET);
 
     if(nilcstack_size(self)) {
         const NilCompileInfo* nci = nilcstack_top(self);
@@ -109,6 +109,5 @@ bool nilcompiler_compile(Nil* self, const char* source) {
     }
 
     if(self->c.depth) nilcompiler_internalerror("invalid top-level");
-
     return true;
 }

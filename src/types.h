@@ -16,6 +16,7 @@
 typedef enum NilCfaType {
     NCFA_MEMORY = 0,
     NCFA_INTERPRET,
+    NCFA_FUNCTION,
 } NilCfaType;
 
 typedef enum NilPfaType {

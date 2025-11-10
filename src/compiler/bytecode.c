@@ -1,22 +1,11 @@
 #include "bytecode.h"
 #include "../types.h"
-#include "../utils.h"
-#include <string.h>
 
 #define NIL_PLACEHOLDER ((NilJump)0)
 
 static void _nilop_writecode(Nil* self, char b) {
     if(self->codeoff + 1 >= NIL_CODE_SIZE) nil_error("code-memory exausted");
     self->memory[self->codeoff++] = b;
-}
-
-static void _nilop_padcode(Nil* self) {
-    NilCell aligncp = NIL_ALIGNUP(self->codeoff, sizeof(NilCell));
-    if(aligncp >= NIL_CODE_SIZE) nil_error("code-memory exausted (padding)");
-
-    // Zero the gap
-    memset(self->memory + self->codeoff, 0, aligncp - self->codeoff);
-    self->codeoff = aligncp;
 }
 
 static void _nilop_write_jump(Nil* self, NilJump addr) {
@@ -61,11 +50,6 @@ void nilop_emit_lload(Nil* self, NilCell stackidx) {
 void nilop_emit_call(Nil* self, NilCell entry) {
     nilop_emit(self, NILOP_CALL);
     _nilop_write_uleb128(self, entry);
-}
-
-void nilop_emit_ret(Nil* self, bool pad) {
-    nilop_emit(self, NILOP_RET);
-    if(pad) _nilop_padcode(self); // fill with NOPs
 }
 
 NilCell nilop_emit_jnt(Nil* self) {

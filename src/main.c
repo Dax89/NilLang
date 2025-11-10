@@ -2,6 +2,7 @@
 #include <nil/nil.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #if !defined(__has_feature)
 #define __has_feature(x) 0
@@ -27,12 +28,20 @@ int main(int argc, char** argv) {
 
     Nil* n = nil_create();
     printf("~~ Executing '%s'\n", argv[1]);
-    nil_disasmfile(n, argv[1]);
+    // nil_disasmfile(n, argv[1]);
 
-    if(nil_loadfile(n, argv[1]))
-        printf("## Execution OK\n");
-    else
-        printf("!! Execution failed\n");
+    if(!nil_loadfile(n, argv[1])) {
+        printf("!! Loading failed\n");
+        return EXIT_FAILURE;
+    }
+
+    printf("## Loading OK\n");
+    nil_disasm(n);
+
+    if(!nil_run(n)) {
+        printf("!! Run failed\n");
+        return EXIT_FAILURE;
+    }
 
     if(nil_size(n)) {
         NilCell v = nil_pop(n);

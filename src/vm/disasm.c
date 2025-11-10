@@ -5,7 +5,7 @@
 #include "vm.h"
 #include <stdio.h>
 
-void _nilvm_printaddr(Nil* self, NilCell depth) {
+static void _nilvm_printaddr(Nil* self, NilCell depth) {
     printf("%08" NIL_CELLXFMT " ", self->vm.ip);
 
     for(NilCell i = 0; i < depth; i++) // Indent
@@ -14,8 +14,10 @@ void _nilvm_printaddr(Nil* self, NilCell depth) {
 
 bool nilvm_disasm(Nil* self) {
     NilCell depth = 0;
+    NilCell oldip = self->vm.ip;
+    self->vm.ip = 0;
 
-    for(;;) {
+    while(self->vm.ip < self->codeoff) {
         _nilvm_printaddr(self, depth);
         NilOpCode op = (NilOpCode)nilvm_readbyte(self);
 
@@ -84,18 +86,17 @@ bool nilvm_disasm(Nil* self) {
 
             case NILOP_RET: {
                 printf("ret\n");
-
-                if(depth > 0) {
-                    depth--;
-                    break;
-                }
-
-                return true;
+                if(depth > 0) depth--;
+                break;
             }
 
-            default: printf("??? %02X\n", op); return false;
+            default:
+                printf("??? %02X\n", op);
+                self->vm.ip = oldip;
+                return false;
         }
     }
 
+    self->vm.ip = oldip;
     return true;
 }

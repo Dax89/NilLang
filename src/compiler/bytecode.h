@@ -4,7 +4,7 @@
 
 // clang-format off
 typedef enum NilOpCode {
-    NILOP_NOP = 0, // Not used directly
+    NILOP_NOP = 0, // Unused
     NILOP_CALL, NILOP_ENTER, NILOP_RET,
     NILOP_LT, NILOP_EQ,
     NILOP_JNT, NILOP_JMP,
@@ -21,7 +21,6 @@ typedef struct Nil Nil;
 void nilop_patch_jump(Nil* nil, NilCell r, NilJump addr);
 
 void nilop_emit(Nil* self, NilOpCode op);
-void nilop_emit_ret(Nil* self, bool pad);
 void nilop_emit_push(Nil* self, NilCell v);
 void nilop_emit_load(Nil* self, NilCell addr);
 void nilop_emit_lload(Nil* self, NilCell stackidx);

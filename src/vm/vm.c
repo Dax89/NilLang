@@ -29,7 +29,7 @@ static void _nilvm_binary(Nil* self, NilOpCode op) {
     nildstack_push(self, res);
 }
 
-void _nilvm_unary(Nil* self, NilOpCode op) {
+static void _nilvm_unary(Nil* self, NilOpCode op) {
     NilCell op1 = nildstack_pop(self);
     NilCell res;
 
@@ -42,7 +42,7 @@ void _nilvm_unary(Nil* self, NilOpCode op) {
     nildstack_push(self, res);
 }
 
-void _nilvm_enterframe(Nil* self) {
+static void _nilvm_enterframe(Nil* self) {
     assert(self->vm.word);
     nilwstack_push(self, self->vm.fp);
     self->vm.fp = self->vm.wsp;
@@ -59,7 +59,7 @@ void _nilvm_enterframe(Nil* self) {
     base = nilwstack_reserve(self, nlocalcells);
 }
 
-void _nilvm_exitframe(Nil* self) {
+static void _nilvm_exitframe(Nil* self) {
     assert(self->vm.word);
     NilCell nargs = self->vm.word->pfa[NPFA_NARGS];
     NilCell nlocals = self->vm.word->pfa[NPFA_NLOCALS];
@@ -71,7 +71,7 @@ void _nilvm_exitframe(Nil* self) {
     self->vm.ip = nilwstack_pop(self);
 }
 
-void _nilvm_call(Nil* self) {
+static void _nilvm_call(Nil* self) {
     NilCell addr = nilvm_readuleb128(self);
     const NilEntry* e = nilmemory_fromcell(self, addr);
 
@@ -88,6 +88,7 @@ void _nilvm_call(Nil* self) {
             self->vm.word = e;
             break;
 
+        case NCFA_FUNCTION: ((NilFunction)e->pfa[0])(self); break;
         default: nilruntime_getep(e->cfa)(self); break;
     }
 }

@@ -221,7 +221,7 @@ typedef struct NilRuntimeEntry {
 static const NilRuntimeEntry NIL_RUNTIME[] = {
     {NULL}, // Reserved (Memory)
     {NULL}, // Reserved (Interpret)
-    {NULL}, // Reserved (Heap)
+    {NULL}, // Reserved (Function)
     NIL_RUNTIME_ENTRY(., nilruntime_popprint),
     NIL_RUNTIME_ENTRY(.s, nilruntime_printstack),
     NIL_RUNTIME_ENTRY(@, nilruntime_loadcell1),
@@ -254,8 +254,10 @@ static const NilRuntimeEntry NIL_RUNTIME[] = {
 void nilruntime_register(Nil* nil) {
     const NilCell N = sizeof(NIL_RUNTIME) / sizeof(*NIL_RUNTIME);
 
-    for(NilCell i = 3; i < N; i++) {
+    for(NilCell i = 0; i < N; i++) {
         const NilRuntimeEntry* re = &NIL_RUNTIME[i];
+        if(!re->name) continue;
+
         NilEntry* e = nilmemory_allocentry(nil, 1, re->name, re->length);
         e->cfa = i;
     }

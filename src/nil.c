@@ -5,6 +5,7 @@
 #include "types.h"
 #include "utils.h"
 #include "vm/disasm.h"
+#include "vm/memory.h"
 #include "vm/runtime.h"
 #include "vm/vm.h"
 #include <stdarg.h>
@@ -40,39 +41,30 @@ Nil* nil_create(void) { return nil_create_ex(NULL, NULL); }
 Nil* nil_create_ex(NilAllocator alloc, void* ctx) {
     if(!alloc) alloc = _nil_allocator;
 
-    Nil* nil = alloc(ctx, NULL, 0, sizeof(Nil) + NIL_MEMORY_SIZE);
-    memset(nil, 0, sizeof(Nil));
-    nil->alloc = alloc;
-    nil->ctx = ctx;
-    nil->vm.heap = nilheap_create(NIL_HEAP_SIZE, nil);
-
-    nilintrinsics_init();
-    nil_reset(nil);
-    return nil;
-}
-
-void nil_destroy(Nil* self) {
-    if(!self) return;
-
-    nilheap_destroy(self->vm.heap, self);
-    nil_free(self, self, sizeof(Nil));
-}
-
-void nil_reset(Nil* self) {
-    memset(self->memory, 0, NIL_MEMORY_SIZE);
-
+    Nil* self = alloc(ctx, NULL, 0, sizeof(Nil) + NIL_MEMORY_SIZE);
+    memset(self, 0, sizeof(Nil) + NIL_MEMORY_SIZE);
+    self->alloc = alloc;
+    self->ctx = ctx;
     self->latest = 0;
     self->codeoff = 0;
     self->dataoff = NIL_CODE_SIZE;
-
     self->vm.ip = 0;
     self->vm.fp = 0;
     self->vm.dsp = 0;
     self->vm.wsp = 0;
     self->c.sp = 0;
+    self->vm.heap = nilheap_create(NIL_HEAP_SIZE, self);
 
     nilstringtable_init(self);
+    nilintrinsics_init();
     nilruntime_register(self);
+    return self;
+}
+
+void nil_destroy(Nil* self) {
+    if(!self) return;
+    nilheap_destroy(self->vm.heap, self);
+    nil_free(self, self, sizeof(Nil));
 }
 
 NilAllocator nil_getallocator(const Nil* self, void** ctx) {
@@ -107,7 +99,7 @@ void nil_free(const Nil* self, void* ptr, int size) {
 }
 
 bool nil_loadfile(Nil* self, const char* filepath) {
-    if(!self || !filepath) return false;
+    if(!filepath) return false;
 
     int sz = 0;
     char* source = nilp_readfile(self, filepath, &sz);
@@ -119,38 +111,19 @@ bool nil_loadfile(Nil* self, const char* filepath) {
 }
 
 bool nil_loadstring(Nil* self, const char* source) {
-    if(!self || !source) return false;
-
-    nil_reset(self);
-    if(nilcompiler_compile(self, source)) return nilvm_run(self);
-    return false;
-}
-
-bool nil_disasmfile(Nil* self, const char* filepath) {
-    if(!self || !filepath) false;
-
-    int sz = 0;
-    char* source = nilp_readfile(self, filepath, &sz);
     if(!source) return false;
-
-    bool res = nil_disasmstring(self, source);
-    nil_free(self, source, sz);
-    return res;
+    return nilcompiler_compile(self, source);
 }
 
-bool nil_disasmstring(Nil* self, const char* source) {
-    if(!self || !source) false;
-
-    nil_reset(self);
-    return nilcompiler_compile(self, source) && nilvm_disasm(self);
-}
+bool nil_disasm(Nil* self) { return nilvm_disasm(self); }
+bool nil_run(Nil* self) { return nilvm_run(self); }
 
 bool nil_register(Nil* self, const char* name, NilFunction f) {
     if(!self || !name || !f) return false;
 
-    // NilEntry* e = nilmemory_allocentry(self, name, strlen(name));
-    // e->value.type = NILV_FUNC;
-    // e->value.to_func = f;
+    NilEntry* e = nilmemory_allocentry(self, 1, name, strlen(name));
+    e->cfa = NCFA_FUNCTION;
+    e->pfa[0] = (NilCell)f;
     return true;
 }
 

@@ -16,7 +16,7 @@ void nilintrinsic_end(Nil* self) {
     NilCompileInfo nci = nilcstack_pop(self);
 
     if(nci.type == NCI_WORD) {
-        nilop_emit_ret(self, false);
+        nilop_emit(self, NILOP_RET);
         nilop_patch_jump(self, nci.word.jmp_reloc, self->codeoff);
         self->c.depth--;
     }
