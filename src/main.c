@@ -20,13 +20,16 @@ const char* __lsan_default_suppressions(void) { return ""; }
 #endif
 
 int main(int argc, char** argv) {
-    const char* filepath = "/home/davide/test.nil";
+    if(argc != 2) {
+        fprintf(stderr, "Usage:\n  NilLang <filename>\n");
+        return 1;
+    }
 
     Nil* n = nil_create();
-    printf("~~ Executing '%s'\n", filepath);
-    nil_disasmfile(n, filepath);
+    printf("~~ Executing '%s'\n", argv[1]);
+    nil_disasmfile(n, argv[1]);
 
-    if(nil_loadfile(n, filepath))
+    if(nil_loadfile(n, argv[1]))
         printf("## Execution OK\n");
     else
         printf("!! Execution failed\n");
