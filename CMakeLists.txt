@@ -8,6 +8,8 @@ else()
     set(PROJECT_NAME_LIB "${PROJECT_NAME}")
 endif()
 
+option(BUILD_TESTING "Build tests" OFF)
+
 add_library(${PROJECT_NAME_LIB} STATIC)
 
 target_sources(${PROJECT_NAME_LIB} 
@@ -71,4 +73,8 @@ if(CMAKE_BUILD_TYPE MATCHES "Debug")
         "${CMAKE_BINARY_DIR}/asan.supp"
         COPYONLY
     )
+endif()
+
+if(BUILD_TESTING)
+    add_subdirectory(tests)
 endif()
