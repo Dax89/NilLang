@@ -43,17 +43,49 @@ static void execute_test(const char* filepath) {
 TEST_CASE(stack_operations) {
     Nil* nil = nil_create();
 
-    TEST_REQUIRE(nil_runstring(nil, "5"));
+    TEST_REQUIRE(nil_runstring(nil, "5")); // (5)
     TEST_REQUIRE(nil_size(nil) == 1);
     TEST_REQUIRE(nil_top(nil) == 5);
-    TEST_REQUIRE(nil_runstring(nil, "10"));
+
+    TEST_REQUIRE(nil_runstring(nil, "10")); // (5 10)
     TEST_REQUIRE(nil_size(nil) == 2);
     TEST_REQUIRE(nil_top(nil) == 10);
-    TEST_REQUIRE(nil_pop(nil) == 10);
-    TEST_REQUIRE(nil_size(nil) == 1);
+
+    TEST_REQUIRE(nil_runstring(nil, "15")); // (5 10 15)
+    TEST_REQUIRE(nil_size(nil) == 3);
+    TEST_REQUIRE(nil_top(nil) == 15);
+
+    TEST_REQUIRE(nil_runstring(nil, "swap")); // (5 15 10)
+    TEST_REQUIRE(nil_size(nil) == 3);
+    TEST_REQUIRE(nil_top(nil) == 10);
+
+    TEST_REQUIRE(nil_runstring(nil, "rot")); // (15 10 5)
+    TEST_REQUIRE(nil_size(nil) == 3);
     TEST_REQUIRE(nil_top(nil) == 5);
-    TEST_REQUIRE(nil_pop(nil) == 5);
-    TEST_REQUIRE(nil_size(nil) == 0);
+
+    TEST_REQUIRE(nil_runstring(nil, "dup")); // (15 10 5 5)
+    TEST_REQUIRE(nil_size(nil) == 4);
+    TEST_REQUIRE(nil_top(nil) == 5);
+
+    TEST_REQUIRE(nil_runstring(nil, "rot")); // (15 5 5 10)
+    TEST_REQUIRE(nil_size(nil) == 4);
+    TEST_REQUIRE(nil_top(nil) == 10);
+
+    TEST_REQUIRE(nil_runstring(nil, "over")); // (15 5 5 10 5)
+    TEST_REQUIRE(nil_size(nil) == 5);
+    TEST_REQUIRE(nil_top(nil) == 5);
+
+    TEST_REQUIRE(nil_runstring(nil, "nip")); // (15 5 5 5)
+    TEST_REQUIRE(nil_size(nil) == 4);
+    TEST_REQUIRE(nil_top(nil) == 5);
+
+    TEST_REQUIRE(nil_runstring(nil, "drop")); // (15 5 5)
+    TEST_REQUIRE(nil_size(nil) == 3);
+    TEST_REQUIRE(nil_top(nil) == 5);
+
+    TEST_REQUIRE(nil_runstring(nil, "tuck")); // (15 5 5 5)
+    TEST_REQUIRE(nil_size(nil) == 4);
+    TEST_REQUIRE(nil_top(nil) == 5);
 
     nil_destroy(nil);
     return true;
