@@ -1,10 +1,10 @@
 word 2@ ( v )
-    v @ @
-    v @ cell + @ 
+    v @
+    v cell + @ 
     swap
 end
 
 word 2! ( a b v )
-    b @ v @ ! 
-    a @ v @ cell + !
+    b v ! 
+    a v cell + !
 end

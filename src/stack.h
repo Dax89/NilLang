@@ -67,4 +67,4 @@ NilCell nilcstack_size(Nil* self);
 
 bool nilcompileinfo_addexit(NilCompileInfo* self, NilCell e);
 NilCell nilcompileinfo_frameindex(const NilCompileInfo* self, Nil* nil,
-                                  const char* name, NilCell n);
+                                  const char* name, NilCell n, bool* isarg);
