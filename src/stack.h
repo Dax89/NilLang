@@ -5,15 +5,16 @@
 
 #define NIL_DECLARE_STACK_OPS(id)                                              \
     void nil##id##_push(Nil* self, NilCell v);                                 \
-    void nil##id##_swap(Nil* self);                                            \
     void nil##id##_dup(Nil* self);                                             \
+    void nil##id##_drop(Nil* self, NilCell c);                                 \
+    void nil##id##_swap(Nil* self);                                            \
     void nil##id##_over(Nil* self);                                            \
+    void nil##id##_rot(Nil* self);                                             \
     NilCell nil##id##_size(const Nil* self);                                   \
     NilCell nil##id##_top(const Nil* self);                                    \
     NilCell nil##id##_pop(Nil* self);                                          \
     NilCell nil##id##_get(Nil* self, NilCell idx);                             \
-    NilCell* nil##id##_reserve(Nil* self, NilCell c);                          \
-    void nil##id##_drop(Nil* self, NilCell c)
+    NilCell* nil##id##_reserve(Nil* self, NilCell c)
 
 typedef struct NilStack {
     Nil* nil;

@@ -36,6 +36,7 @@ bool nilvm_disasm(Nil* self) {
             case NILOP_BNOT: printf("b.not\n"); break;
             case NILOP_SWAP: printf("swap\n"); break;
             case NILOP_OVER: printf("over\n"); break;
+            case NILOP_ROT: printf("rot\n"); break;
             case NILOP_DUP: printf("dup\n"); break;
             case NILOP_LT: printf("lt\n"); break;
             case NILOP_EQ: printf("eq\n"); break;

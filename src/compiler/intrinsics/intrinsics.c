@@ -1,5 +1,4 @@
 #include "intrinsics.h"
-#include "../../lexer/token.h"
 #include "../../utils.h"
 #include "compare.h"
 #include "conditions.h"
@@ -32,8 +31,10 @@ static NilIntrinsic nil_intrinsics[] = {
     NIL_INTRINSIC("bytes", nilintrinsic_bytes), NIL_INTRINSIC("cells", nilintrinsic_cells),
 
     // bytecode - stack
-    NIL_INTRINSIC("pop", nilintrinsic_pop), NIL_INTRINSIC("dup", nilintrinsic_dup),
+    NIL_INTRINSIC("drop", nilintrinsic_pop), NIL_INTRINSIC("dup", nilintrinsic_dup),
     NIL_INTRINSIC("over", nilintrinsic_over), NIL_INTRINSIC("swap", nilintrinsic_swap),
+    NIL_INTRINSIC("rot", nilintrinsic_rot),
+    NIL_INTRINSIC("nip", nilintrinsic_nip), NIL_INTRINSIC("tuck", nilintrinsic_tuck),
 
     // bytecode - math
     NIL_INTRINSIC("!", nilintrinsic_not), NIL_INTRINSIC("+", nilintrinsic_add), 

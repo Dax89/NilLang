@@ -156,6 +156,8 @@ bool nilvm_run(Nil* self) {
             case NILOP_POP: nildstack_pop(self); break;
             case NILOP_DUP: nildstack_dup(self); break;
             case NILOP_OVER: nildstack_over(self); break;
+            case NILOP_SWAP: nildstack_swap(self); break;
+            case NILOP_ROT: nildstack_rot(self); break;
             case NILOP_ENTER: _nilvm_enterframe(self); break;
             case NILOP_CALL: _nilvm_call(self); break;
 
@@ -176,7 +178,6 @@ bool nilvm_run(Nil* self) {
             }
 
             case NILOP_JMP: self->vm.ip = (NilCell)nilvm_readjump(self); break;
-            case NILOP_SWAP: nildstack_swap(self); break;
             default: assert(false); break;
         }
     }
