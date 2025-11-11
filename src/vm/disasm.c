@@ -30,10 +30,6 @@ bool nilvm_disasm(Nil* self) {
             case NILOP_OR: printf("or\n"); break;
             case NILOP_XOR: printf("xor\n"); break;
             case NILOP_NOT: printf("not\n"); break;
-            case NILOP_BAND: printf("b.and\n"); break;
-            case NILOP_BOR: printf("b.or\n"); break;
-            case NILOP_BXOR: printf("b.xor\n"); break;
-            case NILOP_BNOT: printf("b.not\n"); break;
             case NILOP_SWAP: printf("swap\n"); break;
             case NILOP_OVER: printf("over\n"); break;
             case NILOP_ROT: printf("rot\n"); break;
@@ -41,6 +37,10 @@ bool nilvm_disasm(Nil* self) {
             case NILOP_LT: printf("lt\n"); break;
             case NILOP_EQ: printf("eq\n"); break;
             case NILOP_NOP: printf("nop\n"); break;
+            case NILOP_FETCH: printf("fetch\n"); break;
+            case NILOP_STORE: printf("store\n"); break;
+            case NILOP_CFETCH: printf("c.fetch\n"); break;
+            case NILOP_CSTORE: printf("c.store\n"); break;
 
             case NILOP_LLOAD:
                 printf("l.load #%" NIL_CELLFMT "\n", nilvm_readuleb128(self));

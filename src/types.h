@@ -5,7 +5,7 @@
 #include "stack.h"
 #include <nil/nil.h>
 
-#define NIL_TRUE 1
+#define NIL_TRUE ((NilCell)(-1))
 #define NIL_FALSE 0
 #define NIL_MEMORY_SIZE (NIL_CODE_SIZE + NIL_DATA_SIZE + NIL_STRINGS_SIZE)
 #define NIL_CODE_END NIL_CODE_SIZE

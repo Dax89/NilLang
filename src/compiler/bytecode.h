@@ -5,13 +5,21 @@
 // clang-format off
 typedef enum NilOpCode {
     NILOP_NOP = 0, // Unused
-    NILOP_CALL, NILOP_ENTER, NILOP_RET,
-    NILOP_LT, NILOP_EQ,
-    NILOP_JNT, NILOP_JMP,
+
+    NILOP_CALL, NILOP_ENTER, NILOP_RET, // Procedures
+    NILOP_LT, NILOP_EQ, // Comparsisons
+    NILOP_JNT, NILOP_JMP, // Branching
+
+    // Math
     NILOP_ADD, NILOP_SUB, NILOP_MUL, NILOP_DIV,
     NILOP_AND, NILOP_OR, NILOP_XOR, NILOP_NOT,
-    NILOP_BAND, NILOP_BOR, NILOP_BXOR, NILOP_BNOT,
-    NILOP_LLOAD, NILOP_LOAD,
+
+    // Memory
+    NILOP_LLOAD, NILOP_LOAD, 
+    NILOP_FETCH, NILOP_STORE, 
+    NILOP_CFETCH, NILOP_CSTORE,
+
+    // Stack
     NILOP_PUSH, NILOP_POP, 
     NILOP_DUP, NILOP_SWAP, NILOP_OVER, NILOP_ROT,
 } NilOpCode;

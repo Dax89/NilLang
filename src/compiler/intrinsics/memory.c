@@ -4,7 +4,6 @@
 #include "../../vm/memory.h"
 #include "../bytecode.h"
 #include "../common.h"
-#include <stdio.h>
 
 static void _nilintrinsic_alloclocal(Nil* self, NilCell ncells) {
     NilCompileInfo* nci = nilcstack_closest(self, NCI_WORD);
@@ -67,6 +66,10 @@ void nilintrinsic_create(Nil* self) { _nilintrinsic_create(self, 0); }
 void nilintrinsic_var(Nil* self) { _nilintrinsic_create(self, 1); }
 void nilintrinsic_pair(Nil* self) { _nilintrinsic_create(self, 2); }
 void nilintrinsic_here(Nil* self) { nilop_emit_load(self, self->dataoff); }
+void nilintrinsic_fetch(Nil* self) { nilop_emit(self, NILOP_FETCH); }
+void nilintrinsic_store(Nil* self) { nilop_emit(self, NILOP_STORE); }
+void nilintrinsic_cfetch(Nil* self) { nilop_emit(self, NILOP_CFETCH); }
+void nilintrinsic_cstore(Nil* self) { nilop_emit(self, NILOP_CSTORE); }
 
 void nilintrinsic_cells(Nil* self) {
     nilcompiler_advance(self);

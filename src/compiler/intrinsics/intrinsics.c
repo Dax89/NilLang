@@ -25,6 +25,8 @@ static NilIntrinsic nil_intrinsics[] = {
     NIL_INTRINSIC("(", nilintrinsic_beginargs), NIL_INTRINSIC(")", nilintrinsic_endargs),
 
     // bytecode - memory
+    NIL_INTRINSIC("@", nilintrinsic_fetch), NIL_INTRINSIC("!", nilintrinsic_store),
+    NIL_INTRINSIC("c@", nilintrinsic_cfetch), NIL_INTRINSIC("c!", nilintrinsic_cstore),
     NIL_INTRINSIC("here", nilintrinsic_here), NIL_INTRINSIC("unused", nilintrinsic_unused), 
     NIL_INTRINSIC("create", nilintrinsic_create), NIL_INTRINSIC("var", nilintrinsic_var), 
     NIL_INTRINSIC("pair", nilintrinsic_pair), 
@@ -37,12 +39,10 @@ static NilIntrinsic nil_intrinsics[] = {
     NIL_INTRINSIC("nip", nilintrinsic_nip), NIL_INTRINSIC("tuck", nilintrinsic_tuck),
 
     // bytecode - math
-    NIL_INTRINSIC("!", nilintrinsic_not), NIL_INTRINSIC("+", nilintrinsic_add), 
-    NIL_INTRINSIC("-", nilintrinsic_sub), NIL_INTRINSIC("*", nilintrinsic_mul), 
-    NIL_INTRINSIC("/", nilintrinsic_div), NIL_INTRINSIC("&", nilintrinsic_and), 
-    NIL_INTRINSIC("|", nilintrinsic_or), NIL_INTRINSIC("^", nilintrinsic_xor), 
-    NIL_INTRINSIC("b!", nilintrinsic_bnot), NIL_INTRINSIC("b&", nilintrinsic_band), 
-    NIL_INTRINSIC("b|", nilintrinsic_bor), NIL_INTRINSIC("b^", nilintrinsic_bxor), 
+    NIL_INTRINSIC("+", nilintrinsic_add), NIL_INTRINSIC("-", nilintrinsic_sub), 
+    NIL_INTRINSIC("*", nilintrinsic_mul), NIL_INTRINSIC("/", nilintrinsic_div), 
+    NIL_INTRINSIC("and", nilintrinsic_and), NIL_INTRINSIC("or", nilintrinsic_or), 
+    NIL_INTRINSIC("xor", nilintrinsic_xor), NIL_INTRINSIC("not", nilintrinsic_not), 
 
     // bytecode - compare
     NIL_INTRINSIC("==", nilintrinsic_eq), NIL_INTRINSIC("<", nilintrinsic_lt), 

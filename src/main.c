@@ -28,7 +28,6 @@ int main(int argc, char** argv) {
 
     Nil* n = nil_create();
     printf("~~ Executing '%s'\n", argv[1]);
-    // nil_disasmfile(n, argv[1]);
 
     if(!nil_loadfile(n, argv[1])) {
         printf("!! Loading failed\n");

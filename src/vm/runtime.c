@@ -108,20 +108,7 @@ static void nilruntime_nl(Nil* nil) {
 static void nilruntime_printcell(Nil* nil) {
     NilCell* v = (NilCell*)nil_top(nil);
     _nilruntime_checkaddress(nil, v);
-
     printf("%" NIL_CELLFMT, *v);
-}
-
-static void nilruntime_loadcell1(Nil* nil) {
-    NilCell* v = (NilCell*)nil_pop(nil);
-    _nilruntime_checkaddress(nil, v);
-    nil_push(nil, *v);
-}
-
-static void nilruntime_storecell1(Nil* nil) {
-    NilCell* v = (NilCell*)nil_pop(nil);
-    _nilruntime_checkaddress(nil, v);
-    *v = nil_pop(nil);
 }
 
 static void nilruntime_loadcell2(Nil* nil) {
@@ -157,18 +144,6 @@ static void nilruntime_printchar(Nil* nil) {
     printf("%d", *v);
 }
 
-static void nilruntime_loadchar1(Nil* nil) {
-    unsigned char* v = (unsigned char*)nil_top(nil);
-    _nilruntime_checkaddress(nil, v);
-    nil_push(nil, *v);
-}
-
-static void nilruntime_storechar1(Nil* nil) {
-    unsigned char* v = (unsigned char*)nil_top(nil);
-    _nilruntime_checkaddress(nil, v);
-    *v = (char)nil_pop(nil);
-}
-
 static void nilruntime_loadchar2(Nil* nil) {
     unsigned char* v = (unsigned char*)nil_top(nil);
     _nilruntime_checkaddress(nil, v);
@@ -195,16 +170,28 @@ static void nilruntime_storecharn(Nil* nil) {
     v[nil_pop(nil)] = (char)nil_pop(nil);
 }
 
-static void nilruntime_incvar(Nil* nil) {
+static void nilruntime_incvarn(Nil* nil) {
     NilCell* v = (NilCell*)nil_pop(nil);
     _nilruntime_checkaddress(nil, v);
     *v += nil_pop(nil);
 }
 
-static void nilruntime_decvar(Nil* nil) {
+static void nilruntime_decvarn(Nil* nil) {
     NilCell* v = (NilCell*)nil_pop(nil);
     _nilruntime_checkaddress(nil, v);
     *v -= nil_pop(nil);
+}
+
+static void nilruntime_incvar(Nil* nil) {
+    NilCell* v = (NilCell*)nil_pop(nil);
+    _nilruntime_checkaddress(nil, v);
+    *v += 1;
+}
+
+static void nilruntime_decvar(Nil* nil) {
+    NilCell* v = (NilCell*)nil_pop(nil);
+    _nilruntime_checkaddress(nil, v);
+    *v -= 1;
 }
 
 static void nilruntime_cells(Nil* nil) {
@@ -224,22 +211,20 @@ static const NilRuntimeEntry NIL_RUNTIME[] = {
     {NULL}, // Reserved (Function)
     NIL_RUNTIME_ENTRY(., nilruntime_popprint),
     NIL_RUNTIME_ENTRY(.s, nilruntime_printstack),
-    NIL_RUNTIME_ENTRY(@, nilruntime_loadcell1),
-    NIL_RUNTIME_ENTRY(!, nilruntime_storecell1),
     NIL_RUNTIME_ENTRY(2@, nilruntime_loadcell2),
     NIL_RUNTIME_ENTRY(2!, nilruntime_storecell2),
     NIL_RUNTIME_ENTRY(n@, nilruntime_loadcelln),
     NIL_RUNTIME_ENTRY(n!, nilruntime_storecelln),
     NIL_RUNTIME_ENTRY(?, nilruntime_printcell),
-    NIL_RUNTIME_ENTRY(c@, nilruntime_loadchar1),
-    NIL_RUNTIME_ENTRY(c!, nilruntime_storechar1),
     NIL_RUNTIME_ENTRY(2c@, nilruntime_loadchar2),
     NIL_RUNTIME_ENTRY(2c!, nilruntime_storechar2),
     NIL_RUNTIME_ENTRY(nc@, nilruntime_loadcharn),
     NIL_RUNTIME_ENTRY(nc!, nilruntime_storecharn),
     NIL_RUNTIME_ENTRY(c?, nilruntime_printchar),
-    NIL_RUNTIME_ENTRY(+!, nilruntime_incvar),
-    NIL_RUNTIME_ENTRY(-!, nilruntime_decvar),
+    NIL_RUNTIME_ENTRY(1+!, nilruntime_incvar),
+    NIL_RUNTIME_ENTRY(1-!, nilruntime_decvar),
+    NIL_RUNTIME_ENTRY(+!, nilruntime_incvarn),
+    NIL_RUNTIME_ENTRY(-!, nilruntime_decvarn),
     NIL_RUNTIME_ENTRY(dump, nilruntime_dump),
     NIL_RUNTIME_ENTRY(cells, nilruntime_cells),
     NIL_RUNTIME_ENTRY(allot, nilruntime_allot),
