@@ -6,4 +6,4 @@
 typedef struct Nil Nil;
 
 void nilcompiler_init(void);
-bool nilcompiler_compile(Nil* self, const char* source);
+bool nilcompiler_compile(Nil* self, const char* source, bool ret);

@@ -111,21 +111,6 @@ static void nilruntime_printcell(Nil* nil) {
     printf("%" NIL_CELLFMT, *v);
 }
 
-static void nilruntime_loadcell2(Nil* nil) {
-    NilCell* v = (NilCell*)nil_pop(nil);
-    _nilruntime_checkaddress(nil, v);
-    nil_push(nil, v[0]);
-    nil_push(nil, v[1]);
-    nil_swap(nil); // Swap (for strings)
-}
-
-static void nilruntime_storecell2(Nil* nil) {
-    NilCell* v = (NilCell*)nil_pop(nil);
-    _nilruntime_checkaddress(nil, v);
-    v[0] = nil_pop(nil);
-    v[1] = nil_pop(nil);
-}
-
 static void nilruntime_loadcelln(Nil* nil) {
     NilCell* v = (NilCell*)nil_pop(nil);
     _nilruntime_checkaddress(nil, v);
@@ -211,8 +196,8 @@ static const NilRuntimeEntry NIL_RUNTIME[] = {
     {NULL}, // Reserved (Function)
     NIL_RUNTIME_ENTRY(., nilruntime_popprint),
     NIL_RUNTIME_ENTRY(.s, nilruntime_printstack),
-    NIL_RUNTIME_ENTRY(2@, nilruntime_loadcell2),
-    NIL_RUNTIME_ENTRY(2!, nilruntime_storecell2),
+    // NIL_RUNTIME_ENTRY(2@, nilruntime_loadcell2),
+    // NIL_RUNTIME_ENTRY(2!, nilruntime_storecell2),
     NIL_RUNTIME_ENTRY(n@, nilruntime_loadcelln),
     NIL_RUNTIME_ENTRY(n!, nilruntime_storecelln),
     NIL_RUNTIME_ENTRY(?, nilruntime_printcell),

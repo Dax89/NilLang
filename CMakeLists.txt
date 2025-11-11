@@ -62,6 +62,9 @@ if(NOT PROJECT_IS_TOP_LEVEL)
     return()
 endif()
 
+# Copy Nil runtime
+file(COPY "nil" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+
 if(CMAKE_BUILD_TYPE MATCHES "Debug")
     configure_file(
         "${CMAKE_SOURCE_DIR}/lsan.supp"

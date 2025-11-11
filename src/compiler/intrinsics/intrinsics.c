@@ -30,7 +30,8 @@ static NilIntrinsic nil_intrinsics[] = {
     NIL_INTRINSIC("here", nilintrinsic_here), NIL_INTRINSIC("unused", nilintrinsic_unused), 
     NIL_INTRINSIC("create", nilintrinsic_create), NIL_INTRINSIC("var", nilintrinsic_var), 
     NIL_INTRINSIC("pair", nilintrinsic_pair), 
-    NIL_INTRINSIC("bytes", nilintrinsic_bytes), NIL_INTRINSIC("cells", nilintrinsic_cells),
+    NIL_INTRINSIC("bytes", nilintrinsic_bytes), NIL_INTRINSIC("cell", nilintrinsic_cell), 
+    NIL_INTRINSIC("cells", nilintrinsic_cells),
 
     // bytecode - stack
     NIL_INTRINSIC("drop", nilintrinsic_pop), NIL_INTRINSIC("dup", nilintrinsic_dup),

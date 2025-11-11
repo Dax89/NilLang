@@ -36,6 +36,22 @@ static void* _nil_allocator(void* ctx, void* ptr, int osize, int nsize) {
     return p;
 }
 
+static bool _nil_compilestring(Nil* self, const char* source, bool ret) {
+    if(!source) return false;
+    return nilcompiler_compile(self, source, ret);
+}
+
+static bool _nil_compilefile(Nil* self, const char* filepath, bool ret) {
+    if(!filepath) return false;
+
+    int sz = 0;
+    char* source = nilp_readfile(self, filepath, &sz);
+    if(!source) return false;
+    bool ok = _nil_compilestring(self, source, ret);
+    nil_free(self, source, sz);
+    return ok;
+}
+
 Nil* nil_create(void) { return nil_create_ex(NULL, NULL); }
 
 Nil* nil_create_ex(NilAllocator alloc, void* ctx) {
@@ -98,21 +114,16 @@ void nil_free(const Nil* self, void* ptr, int size) {
     }
 }
 
+bool nil_include(Nil* self, const char* filepath) {
+    return _nil_compilefile(self, filepath, false);
+}
+
 bool nil_loadfile(Nil* self, const char* filepath) {
-    if(!filepath) return false;
-
-    int sz = 0;
-    char* source = nilp_readfile(self, filepath, &sz);
-    if(!source) return false;
-
-    bool res = nil_loadstring(self, source);
-    nil_free(self, source, sz);
-    return res;
+    return _nil_compilefile(self, filepath, true);
 }
 
 bool nil_loadstring(Nil* self, const char* source) {
-    if(!source) return false;
-    return nilcompiler_compile(self, source);
+    return _nil_compilestring(self, source, true);
 }
 
 bool nil_disasm(Nil* self) { return nilvm_disasm(self); }

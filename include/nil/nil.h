@@ -19,6 +19,7 @@ NIL_EXPORT NilAllocator nil_getallocator(const Nil* self, void** ctx);
 NIL_EXPORT void* nil_alloc(const Nil* self, int size);
 NIL_EXPORT void* nil_realloc(const Nil* self, void* ptr, int osize, int nsize);
 NIL_EXPORT void nil_free(const Nil* self, void* ptr, int size);
+NIL_EXPORT bool nil_include(Nil* self, const char* filepath);
 NIL_EXPORT bool nil_loadfile(Nil* self, const char* filepath);
 NIL_EXPORT bool nil_loadstring(Nil* self, const char* source);
 NIL_EXPORT bool nil_disasm(Nil* self);

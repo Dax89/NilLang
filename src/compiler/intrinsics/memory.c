@@ -70,6 +70,7 @@ void nilintrinsic_fetch(Nil* self) { nilop_emit(self, NILOP_FETCH); }
 void nilintrinsic_store(Nil* self) { nilop_emit(self, NILOP_STORE); }
 void nilintrinsic_cfetch(Nil* self) { nilop_emit(self, NILOP_CFETCH); }
 void nilintrinsic_cstore(Nil* self) { nilop_emit(self, NILOP_CSTORE); }
+void nilintrinsic_cell(Nil* self) { nilop_emit_push(self, sizeof(NilCell)); }
 
 void nilintrinsic_cells(Nil* self) {
     nilcompiler_advance(self);

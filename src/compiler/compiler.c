@@ -65,7 +65,7 @@ static bool _nilcompiler_identifier(Nil* self) {
     return false;
 }
 
-bool nilcompiler_compile(Nil* self, const char* source) {
+bool nilcompiler_compile(Nil* self, const char* source, bool ret) {
     self->c.depth = 0;
     nillexer_init(&self->c.lexer, source);
     nilcompiler_advance(self);
@@ -93,7 +93,7 @@ bool nilcompiler_compile(Nil* self, const char* source) {
         nilcompiler_advance(self);
     }
 
-    nilop_emit(self, NILOP_RET);
+    if(ret) nilop_emit(self, NILOP_RET);
 
     if(nilcstack_size(self)) {
         const NilCompileInfo* nci = nilcstack_top(self);
