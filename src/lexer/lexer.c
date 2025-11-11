@@ -92,8 +92,7 @@ static NilToken _nillexer_string(NilLexer* self) {
 
 static NilToken _nillexer_word(NilLexer* self) {
     NilTokenType type = NILT_WORD;
-    bool alldigits = _nillexer_isnumber(*self->start) || *self->start == '-' ||
-                     *self->start == '+';
+    bool alldigits = _nillexer_isnumber(*self->start);
 
     while(self->length && !_nillexer_isdelimiter(_nillexer_peek(self))) {
         char ch = _nillexer_advance(self);
