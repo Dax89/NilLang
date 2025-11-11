@@ -11,7 +11,6 @@
 #define NIL_CODE_END NIL_CODE_SIZE
 #define NIL_DATA_END (NIL_CODE_SIZE + NIL_DATA_SIZE)
 #define NIL_STRINGS_END NIL_MEMORY_SIZE
-#define NIL_FIRSTARG 3 // First argument index in word frame
 
 typedef enum NilCfaType {
     NCFA_MEMORY = 0,

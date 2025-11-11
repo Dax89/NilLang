@@ -138,7 +138,7 @@ bool nilvm_run(Nil* self) {
             case NILOP_BNOT: _nilvm_unary(self, op); break;
 
             case NILOP_LLOAD: {
-                NilCell idx = nilvm_readuleb128(self);
+                NilCell idx = self->vm.fp + nilvm_readuleb128(self);
                 nildstack_push(self, (NilCell)&self->vm.wstack[idx]);
                 break;
             }

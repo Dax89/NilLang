@@ -30,7 +30,7 @@ static bool _nilcompiler_localload(Nil* self, const NilCompileInfo* nci) {
     NilCell frameidx = nilcompileinfo_frameindex(
         nci, self, self->c.current.value, self->c.current.length);
 
-    if(frameidx) {
+    if(frameidx != NIL_WSTACK_CELLS) {
         nilop_emit_lload(self, frameidx);
         nilcompiler_advance(self);
         return true;
@@ -40,9 +40,9 @@ static bool _nilcompiler_localload(Nil* self, const NilCompileInfo* nci) {
 }
 
 static bool _nilcompiler_identifier(Nil* self) {
-    NilCompileInfo* nci = nilcstack_top(self);
+    NilCompileInfo* nci = nilcstack_closest(self, NCI_WORD);
 
-    if(nci && nci->type == NCI_WORD) {
+    if(nci) {
         if(nci->word.inarglist) return _nilcompiler_argvar(self, nci);
         if(_nilcompiler_localload(self, nci)) return true;
     }
