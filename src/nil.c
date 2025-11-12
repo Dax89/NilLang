@@ -68,8 +68,15 @@ Nil* nil_create_ex(NilAllocator alloc, void* ctx) {
     self->vm.fp = 0;
     self->vm.dsp = 0;
     self->vm.wsp = 0;
+    self->vm.dstack = nil_alloc(self, sizeof(NilCell) * NIL_DSTACK_CELLS);
+    self->vm.wstack = nil_alloc(self, sizeof(NilCell) * NIL_WSTACK_CELLS);
     self->c.sp = 0;
+    self->c.stack = nil_alloc(self, sizeof(NilCompileInfo) * NIL_CSTACK_CELLS);
     self->vm.heap = nilheap_create(NIL_HEAP_SIZE, self);
+
+    memset(self->vm.dstack, 0, sizeof(NilCell) * NIL_DSTACK_CELLS);
+    memset(self->vm.wstack, 0, sizeof(NilCell) * NIL_WSTACK_CELLS);
+    memset(self->c.stack, 0, sizeof(NilCompileInfo) * NIL_CSTACK_CELLS);
 
     nilstringtable_init(self);
     nilintrinsics_init();
@@ -79,6 +86,14 @@ Nil* nil_create_ex(NilAllocator alloc, void* ctx) {
 
 void nil_destroy(Nil* self) {
     if(!self) return;
+
+    self->vm.dsp = 0;
+    self->vm.wsp = 0;
+    self->c.sp = 0;
+
+    nil_free(self, self->vm.dstack, sizeof(NilCell) * NIL_DSTACK_CELLS);
+    nil_free(self, self->vm.wstack, sizeof(NilCell) * NIL_WSTACK_CELLS);
+    nil_free(self, self->c.stack, sizeof(NilCompileInfo) * NIL_CSTACK_CELLS);
     nilheap_destroy(self->vm.heap, self);
     nil_free(self, self, sizeof(Nil));
 }

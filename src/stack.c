@@ -5,13 +5,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define NIL_DEFINE_STACK_OPS(id, sp)                                           \
+#define NIL_DEFINE_STACK_OPS(id, sp, N)                                        \
     NilCell nil##id##_size(const Nil* self) { return self->vm.sp; }            \
     void nil##id##_push(Nil* self, NilCell v) {                                \
-        _nilstack_push(self->vm.id, sizeof(self->vm.id), &self->vm.sp, v);     \
+        _nilstack_push(self->vm.id, N, &self->vm.sp, v);                       \
     }                                                                          \
     void nil##id##_dup(Nil* self) {                                            \
-        _nilstack_dup(self->vm.id, sizeof(self->vm.id), &self->vm.sp);         \
+        _nilstack_dup(self->vm.id, N, &self->vm.sp);                           \
     }                                                                          \
     void nil##id##_drop(Nil* self, NilCell c) {                                \
         _nilstack_drop(&self->vm.sp, c);                                       \
@@ -20,10 +20,10 @@
         _nilstack_swap(self->vm.id, self->vm.sp);                              \
     }                                                                          \
     void nil##id##_over(Nil* self) {                                           \
-        _nilstack_over(self->vm.id, sizeof(self->vm.id), &self->vm.sp);        \
+        _nilstack_over(self->vm.id, N, &self->vm.sp);                          \
     }                                                                          \
     void nil##id##_rot(Nil* self) {                                            \
-        _nilstack_rot(self->vm.id, sizeof(self->vm.id), &self->vm.sp);         \
+        _nilstack_rot(self->vm.id, N, &self->vm.sp);                           \
     }                                                                          \
     NilCell nil##id##_top(const Nil* self) {                                   \
         return _nilstack_top(self->vm.id, self->vm.sp);                        \
@@ -35,8 +35,7 @@
         return _nilstack_get(self->vm.id, self->vm.sp, idx);                   \
     }                                                                          \
     NilCell* nil##id##_reserve(Nil* self, NilCell c) {                         \
-        return _nilstack_reserve(self->vm.id, sizeof(self->vm.id),             \
-                                 &self->vm.sp, c);                             \
+        return _nilstack_reserve(self->vm.id, N, &self->vm.sp, c);             \
     }
 
 static NIL_NORETURN void _nil_stackerror(const char* msg) {
@@ -103,11 +102,11 @@ static NilCell* _nilstack_reserve(NilCell* stack, NilCell n, NilCell* sp,
     return stack + (*sp - c);
 }
 
-NIL_DEFINE_STACK_OPS(dstack, dsp)
-NIL_DEFINE_STACK_OPS(wstack, wsp)
+NIL_DEFINE_STACK_OPS(dstack, dsp, NIL_DSTACK_CELLS)
+NIL_DEFINE_STACK_OPS(wstack, wsp, NIL_WSTACK_CELLS)
 
 NilCompileInfo* nilcstack_push(Nil* self, NilCompileType t) {
-    if(self->c.sp + 1 >= sizeof(self->c.stack))
+    if(self->c.sp + 1 >= NIL_CSTACK_CELLS)
         _nil_stackerror("compile-stack overflow");
 
     NilCompileInfo* nci = &self->c.stack[self->c.sp++];
@@ -137,7 +136,7 @@ NilCompileInfo* nilcstack_closest(Nil* self, NilCompileType t) {
 NilCell nilcstack_size(Nil* self) { return self->c.sp; }
 
 bool nilcompileinfo_addexit(NilCompileInfo* self, NilCell e) {
-    if(self->loop.n_exits + 1 >= sizeof(self->loop.exits)) return false;
+    if(self->loop.n_exits + 1 >= NIL_LOOP_EXITS) return false;
     self->loop.exits[self->loop.n_exits++] = e;
     return true;
 }

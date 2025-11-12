@@ -43,23 +43,23 @@ typedef struct Nil {
     void* ctx;          // Allocator context
 
     struct {
-        NilCell ip;  // Instruction pointer (pc)
-        NilCell dsp; // Data Stack (top)
-        NilCell wsp; // Word Stack (top)
-        NilCell fp;  // Frame pointer (word stack bottom)
-        NilHeap* heap;
-        NilCell dstack[NIL_DSTACK_CELLS]; // Data Stack
-        NilCell wstack[NIL_WSTACK_CELLS]; // Word Stack
-        const NilEntry* word;             // Current Word (NULL = global scope)
+        NilCell ip;           // Instruction pointer (pc)
+        NilCell dsp;          // Data Stack (top)
+        NilCell wsp;          // Word Stack (top)
+        NilCell fp;           // Frame pointer (word stack bottom)
+        NilHeap* heap;        // The Heap
+        NilCell* dstack;      // Data Stack
+        NilCell* wstack;      // Word Stack
+        const NilEntry* word; // Current Word (NULL = global scope)
     } vm;
 
     struct {
-        int depth;                              // Scope depth
-        NilLexer lexer;                         // Lexer
-        NilToken previous;                      // Previous Token
-        NilToken current;                       // Current Token
-        NilCell sp;                             // Compiler Stack (top)
-        NilCompileInfo stack[NIL_CSTACK_CELLS]; // Compiler stack
+        int depth;             // Scope depth
+        NilLexer lexer;        // Lexer
+        NilToken previous;     // Previous Token
+        NilToken current;      // Current Token
+        NilCell sp;            // Compiler Stack (top)
+        NilCompileInfo* stack; // Compiler stack
     } c;
 
     NilCell latest;  // Pointer to last entry
