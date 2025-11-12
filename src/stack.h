@@ -16,14 +16,6 @@
     NilCell nil##id##_get(Nil* self, NilCell idx);                             \
     NilCell* nil##id##_reserve(Nil* self, NilCell c)
 
-typedef struct NilStack {
-    Nil* nil;
-    const char* id;
-    NilCell size;
-    NilCell sp;
-    NilCell data[];
-} NilStack;
-
 NIL_DECLARE_STACK_OPS(dstack);
 NIL_DECLARE_STACK_OPS(wstack);
 

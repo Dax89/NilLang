@@ -29,7 +29,13 @@ static void _nilvm_binary(Nil* self, NilOpCode op) {
         case NILOP_ADD: res = op1 + op2; break;
         case NILOP_SUB: res = op1 - op2; break;
         case NILOP_MUL: res = op1 * op2; break;
-        case NILOP_DIV: res = op1 / op2; break;
+
+        case NILOP_DIV: {
+            if(!op2) nil_error("division by zero");
+            res = op1 / op2;
+            break;
+        }
+
         case NILOP_AND: res = op1 & op2; break;
         case NILOP_OR: res = op1 | op2; break;
         case NILOP_XOR: res = op1 ^ op2; break;
