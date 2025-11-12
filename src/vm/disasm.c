@@ -42,6 +42,10 @@ bool nilvm_disasm(Nil* self) {
             case NILOP_CFETCH: printf("c.fetch\n"); break;
             case NILOP_CSTORE: printf("c.store\n"); break;
 
+            case NILOP_ALOAD:
+                printf("a.load #%" NIL_CELLFMT "\n", nilvm_readuleb128(self));
+                break;
+
             case NILOP_LLOAD:
                 printf("l.load #%" NIL_CELLFMT "\n", nilvm_readuleb128(self));
                 break;

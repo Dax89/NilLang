@@ -42,6 +42,11 @@ void nilop_emit_load(Nil* self, NilCell addr) {
     _nilop_write_uleb128(self, addr);
 }
 
+void nilop_emit_aload(Nil* self, NilCell stackidx) {
+    nilop_emit(self, NILOP_ALOAD);
+    _nilop_write_uleb128(self, stackidx);
+}
+
 void nilop_emit_lload(Nil* self, NilCell stackidx) {
     nilop_emit(self, NILOP_LLOAD);
     _nilop_write_uleb128(self, stackidx);

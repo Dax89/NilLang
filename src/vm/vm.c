@@ -132,6 +132,12 @@ bool nilvm_run(Nil* self) {
 
             case NILOP_NOT: nildstack_push(self, ~nildstack_pop(self)); break;
 
+            case NILOP_ALOAD: {
+                NilCell idx = self->vm.fp + nilvm_readuleb128(self);
+                nildstack_push(self, self->vm.wstack[idx]);
+                break;
+            }
+
             case NILOP_LLOAD: {
                 NilCell idx = self->vm.fp + nilvm_readuleb128(self);
                 nildstack_push(self, (NilCell)&self->vm.wstack[idx]);

@@ -17,7 +17,7 @@ typedef enum NilOpCode {
     // Memory
     NILOP_LOAD, NILOP_STORE, NILOP_FETCH, 
     NILOP_CFETCH, NILOP_CSTORE,
-    NILOP_LLOAD,
+    NILOP_ALOAD, NILOP_LLOAD,
 
     // Stack
     NILOP_PUSH, NILOP_POP, 
@@ -32,6 +32,7 @@ void nilop_patch_jump(Nil* nil, NilCell r, NilJump addr);
 void nilop_emit(Nil* self, NilOpCode op);
 void nilop_emit_push(Nil* self, NilCell v);
 void nilop_emit_load(Nil* self, NilCell addr);
+void nilop_emit_aload(Nil* self, NilCell stackidx);
 void nilop_emit_lload(Nil* self, NilCell stackidx);
 void nilop_emit_call(Nil* self, NilCell entry);
 NilCell nilop_emit_jnt(Nil* self);

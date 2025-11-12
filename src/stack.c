@@ -142,9 +142,10 @@ bool nilcompileinfo_addexit(NilCompileInfo* self, NilCell e) {
     return true;
 }
 
-NilCell nilcompileinfo_frameindex(const NilCompileInfo* self, Nil* nil,
-                                  const char* name, NilCell n, bool* isarg) {
-    if(self->type != NCI_WORD) return NIL_WSTACK_CELLS;
+NilFrameIndex nilcompileinfo_frameindex(const NilCompileInfo* self, Nil* nil,
+                                        const char* name, NilCell n) {
+    if(self->type != NCI_WORD)
+        return (NilFrameIndex){.value = NIL_WSTACK_CELLS};
 
     NilCell nargs = self->word.entry->pfa[NPFA_NARGS];
 
@@ -156,10 +157,8 @@ NilCell nilcompileinfo_frameindex(const NilCompileInfo* self, Nil* nil,
     while(le) {
         const char* argname = nilmemory_fromcell(nil, le->name);
 
-        if(argname && str_iequals_n(name, n, argname)) {
-            *isarg = false;
-            return nargs + localidx;
-        }
+        if(argname && str_iequals_n(name, n, argname))
+            return (NilFrameIndex){.value = nargs + localidx, .isarg = false};
 
         le = nilmemory_fromcell(nil, le->link);
         localidx++;
@@ -172,14 +171,12 @@ NilCell nilcompileinfo_frameindex(const NilCompileInfo* self, Nil* nil,
     while(le) {
         const char* argname = nilmemory_fromcell(nil, le->name);
 
-        if(argname && str_iequals_n(name, n, argname)) {
-            *isarg = true;
-            return argidx;
-        }
+        if(argname && str_iequals_n(name, n, argname))
+            return (NilFrameIndex){.value = argidx, .isarg = true};
 
         le = nilmemory_fromcell(nil, le->link);
         argidx--;
     }
 
-    return NIL_WSTACK_CELLS;
+    return (NilFrameIndex){.value = NIL_WSTACK_CELLS};
 }

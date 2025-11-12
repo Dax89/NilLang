@@ -59,6 +59,11 @@ typedef struct NilCompileInfo {
     };
 } NilCompileInfo;
 
+typedef struct NilFrameIndex {
+    NilCell value;
+    bool isarg;
+} NilFrameIndex;
+
 NilCompileInfo* nilcstack_push(Nil* self, NilCompileType t);
 NilCompileInfo nilcstack_pop(Nil* self);
 NilCompileInfo* nilcstack_top(Nil* self);
@@ -66,5 +71,5 @@ NilCompileInfo* nilcstack_closest(Nil* self, NilCompileType t);
 NilCell nilcstack_size(Nil* self);
 
 bool nilcompileinfo_addexit(NilCompileInfo* self, NilCell e);
-NilCell nilcompileinfo_frameindex(const NilCompileInfo* self, Nil* nil,
-                                  const char* name, NilCell n, bool* isarg);
+NilFrameIndex nilcompileinfo_frameindex(const NilCompileInfo* self, Nil* nil,
+                                        const char* name, NilCell n);

@@ -27,13 +27,15 @@ static bool _nilcompiler_argvar(Nil* self, NilCompileInfo* nci) {
 }
 
 static bool _nilcompiler_localload(Nil* self, const NilCompileInfo* nci) {
-    bool isarg = false;
-    NilCell frameidx = nilcompileinfo_frameindex(
-        nci, self, self->c.current.value, self->c.current.length, &isarg);
+    NilFrameIndex frameidx = nilcompileinfo_frameindex(
+        nci, self, self->c.current.value, self->c.current.length);
 
-    if(frameidx != NIL_WSTACK_CELLS) {
-        nilop_emit_lload(self, frameidx);
-        if(isarg) nilop_emit(self, NILOP_FETCH); // Dereference arguments
+    if(frameidx.value != NIL_WSTACK_CELLS) {
+        if(frameidx.isarg)
+            nilop_emit_aload(self, frameidx.value);
+        else
+            nilop_emit_lload(self, frameidx.value);
+
         nilcompiler_advance(self);
         return true;
     }
