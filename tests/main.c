@@ -91,7 +91,43 @@ TEST_CASE(stack_operations) {
     return true;
 }
 
+TEST_CASE(math_operations) {
+    Nil* nil = nil_create();
+
+    TEST_REQUIRE(nil_runstring(nil, "5 3 +"));
+    TEST_REQUIRE(nil_pop(nil) == 8);
+    TEST_REQUIRE(nil_runstring(nil, "10 20 30 + +"));
+    TEST_REQUIRE(nil_pop(nil) == 60);
+    TEST_REQUIRE(nil_runstring(nil, "10 20 + 30 +"));
+    TEST_REQUIRE(nil_pop(nil) == 60);
+
+    TEST_REQUIRE(nil_runstring(nil, "7 5 -"));
+    TEST_REQUIRE(nil_pop(nil) == 2);
+    TEST_REQUIRE(nil_runstring(nil, "60 10 40 - -"));
+    TEST_REQUIRE(nil_pop(nil) == 90);
+    TEST_REQUIRE(nil_runstring(nil, "60 10 - 40 -"));
+    TEST_REQUIRE(nil_pop(nil) == 10);
+
+    TEST_REQUIRE(nil_runstring(nil, "10 5 *"));
+    TEST_REQUIRE(nil_pop(nil) == 50);
+    TEST_REQUIRE(nil_runstring(nil, "30 25 2 * *"));
+    TEST_REQUIRE(nil_pop(nil) == 1500);
+    TEST_REQUIRE(nil_runstring(nil, "30 25 * 2 *"));
+    TEST_REQUIRE(nil_pop(nil) == 1500);
+
+    TEST_REQUIRE(nil_runstring(nil, "10 5 /"));
+    TEST_REQUIRE(nil_pop(nil) == 2);
+    TEST_REQUIRE(nil_runstring(nil, "2000 4 2 / /"));
+    TEST_REQUIRE(nil_pop(nil) == 1000);
+    TEST_REQUIRE(nil_runstring(nil, "2000 4 / 2 /"));
+    TEST_REQUIRE(nil_pop(nil) == 250);
+
+    nil_destroy(nil);
+    return true;
+}
+
 int main(int argc, char** argv) {
     TEST_RUN(stack_operations);
+    TEST_RUN(math_operations);
     return 0;
 }
