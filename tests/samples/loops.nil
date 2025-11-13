@@ -1,0 +1,9 @@
+var i
+0 i !
+
+begin
+    i @ 10 == if break end
+    1 myvar +!
+repeat
+
+i @
