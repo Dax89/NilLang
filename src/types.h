@@ -68,3 +68,22 @@ typedef struct Nil {
     NilCell stroff;  // Strings offset (grows =>)
     char memory[];   // VM Memory (Program Image)
 } Nil;
+
+#pragma pack(push, 1)
+typedef struct NilCore {
+    struct { // Configuration data (for validation)
+        uint32_t cellsize;
+        uint32_t jmpsize;
+        NilCell codesize;
+        NilCell datasize;
+        NilCell strsize;
+    } config;
+
+    NilCell latest;
+    NilCell codeoff;
+    NilCell dataoff;
+    NilCell stroff;
+
+    char memory[];
+} NilCore;
+#pragma pack(pop)

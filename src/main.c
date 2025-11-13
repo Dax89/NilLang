@@ -44,41 +44,92 @@ char* get_import_filepath(const char* s, const char* rhs) {
     return filepath;
 }
 
+void repl(Nil* nil) {
+    fprintf(stdout, "Nil REPL (type 'exit' to quit)\n");
+
+    char* source = NULL;
+    size_t len;
+
+    for(;;) {
+        fprintf(stdout, "> ");
+
+        ssize_t nread = getline(&source, &len, stdin);
+        if(nread == -1) break;
+        if(source[nread - 1] == '\n') source[nread - 1] = '\0';
+        nil_runstring(nil, source);
+    }
+
+    free(source);
+}
+
+void help(void) {
+    // clang-format off
+    static const char HELP_TEXT[] = {
+        NIL_VERSION "\n"
+        "  -h        print this help and exit\n"
+        "  -v        print version and exit\n"
+        "  -l <file> load core from file\n"
+        "Options must come before files to execute\n"
+    };
+    // clang-format on
+
+    fputs(HELP_TEXT, stdout);
+}
+
 int main(int argc, char** argv) {
-    if(argc != 2) {
-        fprintf(stderr, "Usage:\n  NilLang <filename>\n");
-        return 1;
+    int nopt;
+
+    for(nopt = 1; nopt < argc && argv[nopt][0] == '-'; nopt++) {
+        switch(argv[nopt][1]) {
+            case 'h':
+                help();
+                exit(EXIT_SUCCESS);
+                break;
+
+            case 'v': fputs(NIL_VERSION "\n", stdout); break;
+
+            default:
+                fprintf(stderr, "Usage: %s [-options...] [files...]\n",
+                        argv[0]);
+                exit(EXIT_FAILURE);
+        }
     }
 
-    printf(">> %s\n", argv[0]);
+    argv += nopt;
 
-    Nil* n = nil_create();
-    printf("~~ Executing '%s'\n", argv[1]);
+    Nil* nil = nil_create();
 
-    char* corepath = get_import_filepath(argv[0], "nil/core.nil");
-    nil_include(n, corepath);
-    free(corepath);
-
-    if(!nil_loadfile(n, argv[1])) {
-        printf("!! Loading failed\n");
-        return EXIT_FAILURE;
-    }
-
-    printf("## Loading OK\n");
-    // nil_disasm(n);
-
-    if(!nil_run(n)) {
-        printf("!! Run failed\n");
-        return EXIT_FAILURE;
-    }
-
-    if(nil_size(n)) {
-        NilCell v = nil_pop(n);
-        printf("RESULT: %lu\n", v);
+    if(nopt != argc) {
     }
     else
-        printf("RESULT: <NO VALUE>\n");
+        repl(nil);
 
-    nil_destroy(n);
+    // printf("~~ Executing '%s'\n", argv[1]);
+    //
+    // char* corepath = get_import_filepath(argv[0], "nil/core.nil");
+    // nil_include(n, corepath);
+    // free(corepath);
+    //
+    // if(!nil_loadfile(n, argv[1])) {
+    //     printf("!! Loading failed\n");
+    //     return EXIT_FAILURE;
+    // }
+    //
+    // printf("## Loading OK\n");
+    // nil_disasm(n);
+    //
+    // if(!nil_run(n)) {
+    //     printf("!! Run failed\n");
+    //     return EXIT_FAILURE;
+    // }
+    //
+    // if(nil_size(n)) {
+    //     NilCell v = nil_pop(n);
+    //     printf("RESULT: %lu\n", v);
+    // }
+    // else
+    //     printf("RESULT: <NO VALUE>\n");
+
+    nil_destroy(nil);
     return 0;
 }

@@ -14,6 +14,8 @@ if(PROJECT_IS_TOP_LEVEL)
     endif()
 endif()
 
+file(COPY "samples" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+
 add_executable(tests)
 setup_compiler(tests)
 

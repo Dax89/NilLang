@@ -32,14 +32,28 @@
 #endif /* defined(__GNUC__) || defined(__clang__) */
 #endif /* !defined(NIL_NORETURN) */
 
+#define NIL_VERSION_MAJOR 0
+#define NIL_VERSION_MINOR 5
+#define NIL_VERSION_REV 0
+
+#define __NIL_TOSTR(x) #x
+#define _NIL_TOSTR(x) __NIL_TOSTR(x)
+
+#define NIL_VERSION                                                            \
+    "Nil " _NIL_TOSTR(NIL_VERSION_MAJOR) "." _NIL_TOSTR(                       \
+        NIL_VERSION_MINOR) "." _NIL_TOSTR(NIL_VERSION_REV)
+
 // -----------------------------------------------------------------------------
 // WARNING:
-// Changing the types of NilCell or NilJump can have far-reaching effects:
-//   1. NilCell is used for all stack cells, frame fields, program counter (IP),
-//      and memory offsets. Changing its size affects the entire VM layout.
+// Changing the types of NilCell or NilJump can have far-reaching
+// effects:
+//   1. NilCell is used for all stack cells, frame fields, program
+//   counter (IP),
+//      and memory offsets. Changing its size affects the entire VM
+//      layout.
 //   2. NilJump is used for absolute jump addresses in bytecode.
-//      Changing its size affects bytecode encoding, serialization, and jump
-//      range.
+//      Changing its size affects bytecode encoding, serialization, and
+//      jump range.
 // -----------------------------------------------------------------------------
 #if !defined(NIL_CELLTYPE)
 #define NIL_CELLTYPE uintptr_t

@@ -1,5 +1,6 @@
 #include "compiler/compiler.h"
 #include "compiler/intrinsics/intrinsics.h"
+#include "io.h"
 #include "stack.h"
 #include "stringtable.h"
 #include "types.h"
@@ -44,11 +45,10 @@ static bool _nil_compilestring(Nil* self, const char* source, bool ret) {
 static bool _nil_compilefile(Nil* self, const char* filepath, bool ret) {
     if(!filepath) return false;
 
-    int sz = 0;
-    char* source = nilp_readfile(self, filepath, &sz);
+    NilBuffer* source = nilio_slurpfile(self, filepath);
     if(!source) return false;
-    bool ok = _nil_compilestring(self, source, ret);
-    nil_free(self, source, sz);
+    bool ok = _nil_compilestring(self, source->data, ret);
+    nilbuffer_destroy(source, self);
     return ok;
 }
 
@@ -127,6 +127,64 @@ void nil_free(const Nil* self, void* ptr, int size) {
         NilCell aligned = NIL_ALIGNUP(size, sizeof(NilCell));
         self->alloc(self->ctx, ptr, aligned, 0);
     }
+}
+
+void nil_savecore(const Nil* self, const char* filepath) {
+    NilFile fp = nilio_openfile(filepath, NIO_W);
+
+    NilCore core = {
+        .config =
+            {
+                .cellsize = sizeof(NilCell),
+                .jmpsize = sizeof(NilJump),
+                .codesize = NIL_CODE_SIZE,
+                .datasize = NIL_DATA_SIZE,
+                .strsize = NIL_STRINGS_SIZE,
+            },
+        .latest = self->latest,
+        .codeoff = self->codeoff,
+        .dataoff = self->dataoff,
+        .stroff = self->stroff,
+    };
+
+    nilio_writefile(fp, (const char*)&core, sizeof(NilCore));
+    nilio_writefile(fp, self->memory, NIL_MEMORY_SIZE);
+    nilio_closefile(fp);
+}
+
+void nil_loadcore(Nil* self, const char* filepath) {
+    NilFile fp = nilio_openfile(filepath, NIO_R);
+
+    NilCore core;
+    nilio_readfile(fp, (char*)&core, sizeof(NilCore));
+
+    if(core.config.cellsize != sizeof(NilCell)) {
+        fprintf(stderr, "incompatible CELL size\n");
+        exit(-3);
+    }
+
+    if(core.config.jmpsize != sizeof(NilJump)) {
+        fprintf(stderr, "incompatible JMP size\n");
+        exit(-3);
+    }
+
+    if(core.config.codesize != NIL_CODE_SIZE) {
+        fprintf(stderr, "incompatible CODE size\n");
+        exit(-3);
+    }
+
+    if(core.config.datasize != NIL_DATA_SIZE) {
+        fprintf(stderr, "incompatible DATA size\n");
+        exit(-3);
+    }
+
+    if(core.config.strsize != NIL_STRINGS_SIZE) {
+        fprintf(stderr, "incompatible STRINGS size\n");
+        exit(-3);
+    }
+
+    nilio_readfile(fp, self->memory, NIL_MEMORY_SIZE);
+    nilio_closefile(fp);
 }
 
 bool nil_include(Nil* self, const char* filepath) {

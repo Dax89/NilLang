@@ -4,6 +4,7 @@
 #include "memory.h"
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define NIL_RUNTIME_ENTRY(n, ep)                                               \
     {.name = #n, .length = sizeof(#n) - 1, .entry = ep}
@@ -37,6 +38,11 @@ static void nilruntime_printstack(Nil* nil) {
     }
 
     printf(")");
+}
+
+static void nilruntime_exit(Nil* nil) {
+    NIL_UNUSED(nil);
+    exit(0);
 }
 
 static void nilruntime_dump(Nil* nil) {
@@ -208,6 +214,7 @@ static const NilRuntimeEntry NIL_RUNTIME[] = {
     NIL_RUNTIME_ENTRY(1-!, nilruntime_decvar),
     NIL_RUNTIME_ENTRY(+!, nilruntime_incvarn),
     NIL_RUNTIME_ENTRY(-!, nilruntime_decvarn),
+    NIL_RUNTIME_ENTRY(exit, nilruntime_exit),
     NIL_RUNTIME_ENTRY(dump, nilruntime_dump),
     NIL_RUNTIME_ENTRY(cells, nilruntime_cells),
     NIL_RUNTIME_ENTRY(allot, nilruntime_allot),

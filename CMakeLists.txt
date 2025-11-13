@@ -16,6 +16,7 @@ target_sources(${PROJECT_NAME_LIB}
     PRIVATE
         src/nil.c
         src/utils.c
+        src/io.c
         src/stack.c
         src/heap.c
         src/stringtable.c

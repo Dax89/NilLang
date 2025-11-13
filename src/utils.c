@@ -1,7 +1,5 @@
 #include "utils.h"
 #include <limits.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 char str_toupper(char s) {
     if(s >= 'a' && s <= 'z') s -= 0x20;
@@ -87,39 +85,4 @@ double str_toreal(const char* s, int n) {
     }
 
     return sign * res;
-}
-
-char* nilp_readfile(const Nil* nil, const char* filepath, int* outsz) {
-    FILE* fp = fopen(filepath, "rb");
-
-    if(!fp) {
-        fprintf(stderr, "Could not open file \"%s\".\n", filepath);
-        exit(-1);
-    }
-
-    fseek(fp, 0, SEEK_END);
-    int sz = ftell(fp);
-    int memsz = (sz + 1) * sizeof(char);
-    fseek(fp, 0, SEEK_SET);
-
-    if(outsz) *outsz = sz;
-
-    char* buffer = (char*)nil_alloc(nil, memsz);
-
-    if(!buffer) {
-        fprintf(stderr, "Not enough memory to read \"%s\".\n", filepath);
-        exit(-1);
-    }
-
-    int n = fread(buffer, sizeof(char), sz, fp);
-
-    if(n < sz) {
-        fprintf(stderr, "Could not read file \"%s\".\n", filepath);
-        exit(-1);
-    }
-
-    buffer[n] = '\0';
-
-    fclose(fp);
-    return buffer;
 }
