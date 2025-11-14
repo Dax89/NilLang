@@ -99,36 +99,10 @@ int main(int argc, char** argv) {
 
     Nil* nil = nil_create();
 
-    if(nopt != argc) {
-    }
+    if(nopt != argc)
+        nil_runfile(nil, *argv);
     else
         repl(nil);
-
-    // printf("~~ Executing '%s'\n", argv[1]);
-    //
-    // char* corepath = get_import_filepath(argv[0], "nil/core.nil");
-    // nil_include(n, corepath);
-    // free(corepath);
-    //
-    // if(!nil_loadfile(n, argv[1])) {
-    //     printf("!! Loading failed\n");
-    //     return EXIT_FAILURE;
-    // }
-    //
-    // printf("## Loading OK\n");
-    // nil_disasm(n);
-    //
-    // if(!nil_run(n)) {
-    //     printf("!! Run failed\n");
-    //     return EXIT_FAILURE;
-    // }
-    //
-    // if(nil_size(n)) {
-    //     NilCell v = nil_pop(n);
-    //     printf("RESULT: %lu\n", v);
-    // }
-    // else
-    //     printf("RESULT: <NO VALUE>\n");
 
     nil_destroy(nil);
     return 0;
