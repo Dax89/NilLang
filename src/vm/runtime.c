@@ -1,5 +1,6 @@
 #include "runtime.h"
 #include "../heap.h"
+#include "../io.h"
 #include "../utils.h"
 #include "memory.h"
 #include <assert.h>
@@ -7,7 +8,7 @@
 #include <stdlib.h>
 
 #define NIL_RUNTIME_ENTRY(n, ep)                                               \
-    {.name = #n, .length = sizeof(#n) - 1, .entry = ep}
+    {.name = n, .length = sizeof(n) - 1, .entry = ep}
 
 #define NIL_DUMPLINE 16
 
@@ -189,6 +190,85 @@ static void nilruntime_cells(Nil* nil) {
     nil_push(nil, nil_pop(nil) * sizeof(NilCell));
 }
 
+static void nilruntime_throw(Nil* nil) {
+    NilCell c = nil_pop(nil);
+
+    if(c == NIL_TRUE)
+        abort();
+    else if(c)
+        nil_error("exception thrown");
+}
+
+static void nilruntime_ro(Nil* nil) { nil_push(nil, NIO_R); }
+static void nilruntime_wo(Nil* nil) { nil_push(nil, NIO_W); }
+static void nilruntime_rw(Nil* nil) { nil_push(nil, NIO_RW); }
+
+static void nilruntime_fileopen(Nil* nil) {
+    NilCell mode = nil_pop(nil);
+    nil_pop(nil); // pop length
+    const char* filepath = (const char*)nil_pop(nil);
+
+    NilResult r = nilio_fileopen(filepath, (NilIOMode)mode);
+    nil_push(nil, r.value);
+    nil_push(nil, r.err);
+}
+
+static void nilruntime_fileclose(Nil* nil) {
+    nilio_fileclose((NilFile)nil_pop(nil));
+}
+
+static void nilruntime_filepos(Nil* nil) {
+    NilResult r = nilio_filepos((NilFile)nil_pop(nil));
+    nil_push(nil, r.value);
+    nil_push(nil, r.err);
+}
+
+static void nilruntime_filesize(Nil* nil) {
+    NilResult res = nilio_filesize((NilFile)nil_pop(nil));
+    nil_push(nil, res.value);
+    nil_push(nil, res.err);
+}
+
+static void nilruntime_fileread(Nil* nil) {
+    NilFile fp = (NilFile)nil_pop(nil);
+    NilCell n = nil_pop(nil);
+    char* data = (char*)nil_pop(nil);
+
+    NilResult r = nilio_fileread(fp, data, n);
+    nil_push(nil, r.value);
+    nil_push(nil, r.err);
+}
+
+static void nilruntime_filereadln(Nil* nil) {
+    NilFile fp = (NilFile)nil_pop(nil);
+    NilCell n = nil_pop(nil);
+    char* data = (char*)nil_pop(nil);
+
+    NilResult r = nilio_filereadln(fp, data, n);
+    nil_push(nil, r.value);
+    nil_push(nil, r.err);
+}
+
+static void nilruntime_filewrite(Nil* nil) {
+    NilFile fp = (NilFile)nil_pop(nil);
+    NilCell n = nil_pop(nil);
+    char* data = (char*)nil_pop(nil);
+
+    NilResult r = nilio_filewrite(fp, data, n);
+    // nil_push(nil, r.value);
+    nil_push(nil, r.err);
+}
+
+static void nilruntime_filewriteln(Nil* nil) {
+    NilFile fp = (NilFile)nil_pop(nil);
+    NilCell n = nil_pop(nil);
+    char* data = (char*)nil_pop(nil);
+
+    NilResult r = nilio_filewriteln(fp, data, n);
+    // nil_push(nil, r.value);
+    nil_push(nil, r.err);
+}
+
 typedef struct NilRuntimeEntry {
     const char* name;
     NilCell length;
@@ -200,29 +280,45 @@ static const NilRuntimeEntry NIL_RUNTIME[] = {
     {NULL}, // Reserved (Memory)
     {NULL}, // Reserved (Interpret)
     {NULL}, // Reserved (Function)
-    NIL_RUNTIME_ENTRY(., nilruntime_popprint),
-    NIL_RUNTIME_ENTRY(.s, nilruntime_printstack),
-    NIL_RUNTIME_ENTRY(n@, nilruntime_loadcelln),
-    NIL_RUNTIME_ENTRY(n!, nilruntime_storecelln),
-    NIL_RUNTIME_ENTRY(?, nilruntime_printcell),
-    NIL_RUNTIME_ENTRY(2c@, nilruntime_loadchar2),
-    NIL_RUNTIME_ENTRY(2c!, nilruntime_storechar2),
-    NIL_RUNTIME_ENTRY(nc@, nilruntime_loadcharn),
-    NIL_RUNTIME_ENTRY(nc!, nilruntime_storecharn),
-    NIL_RUNTIME_ENTRY(c?, nilruntime_printchar),
-    NIL_RUNTIME_ENTRY(1+!, nilruntime_incvar),
-    NIL_RUNTIME_ENTRY(1-!, nilruntime_decvar),
-    NIL_RUNTIME_ENTRY(+!, nilruntime_incvarn),
-    NIL_RUNTIME_ENTRY(-!, nilruntime_decvarn),
-    NIL_RUNTIME_ENTRY(exit, nilruntime_exit),
-    NIL_RUNTIME_ENTRY(dump, nilruntime_dump),
-    NIL_RUNTIME_ENTRY(cells, nilruntime_cells),
-    NIL_RUNTIME_ENTRY(allot, nilruntime_allot),
-    NIL_RUNTIME_ENTRY(allocate, nilruntime_allocate),
-    NIL_RUNTIME_ENTRY(reallocate, nilruntime_reallocate),
-    NIL_RUNTIME_ENTRY(free, nilruntime_free),
-    NIL_RUNTIME_ENTRY(say, nilruntime_say),
-    NIL_RUNTIME_ENTRY(nl, nilruntime_nl),
+
+    // Base
+    NIL_RUNTIME_ENTRY(".", nilruntime_popprint),
+    NIL_RUNTIME_ENTRY(".s", nilruntime_printstack),
+    NIL_RUNTIME_ENTRY("n@", nilruntime_loadcelln),
+    NIL_RUNTIME_ENTRY("n!", nilruntime_storecelln),
+    NIL_RUNTIME_ENTRY("?", nilruntime_printcell),
+    NIL_RUNTIME_ENTRY("2c@", nilruntime_loadchar2),
+    NIL_RUNTIME_ENTRY("2c!", nilruntime_storechar2),
+    NIL_RUNTIME_ENTRY("nc@", nilruntime_loadcharn),
+    NIL_RUNTIME_ENTRY("nc!", nilruntime_storecharn),
+    NIL_RUNTIME_ENTRY("c?", nilruntime_printchar),
+    NIL_RUNTIME_ENTRY("1+!", nilruntime_incvar),
+    NIL_RUNTIME_ENTRY("1-!", nilruntime_decvar),
+    NIL_RUNTIME_ENTRY("+!", nilruntime_incvarn),
+    NIL_RUNTIME_ENTRY("-!", nilruntime_decvarn),
+    NIL_RUNTIME_ENTRY("throw", nilruntime_throw),
+    NIL_RUNTIME_ENTRY("exit", nilruntime_exit),
+    NIL_RUNTIME_ENTRY("dump", nilruntime_dump),
+    NIL_RUNTIME_ENTRY("cells", nilruntime_cells),
+    NIL_RUNTIME_ENTRY("allot", nilruntime_allot),
+    NIL_RUNTIME_ENTRY("allocate", nilruntime_allocate),
+    NIL_RUNTIME_ENTRY("reallocate", nilruntime_reallocate),
+    NIL_RUNTIME_ENTRY("free", nilruntime_free),
+    NIL_RUNTIME_ENTRY("say", nilruntime_say),
+    NIL_RUNTIME_ENTRY("nl", nilruntime_nl),
+
+    // I/O
+    NIL_RUNTIME_ENTRY("r/o", nilruntime_ro),
+    NIL_RUNTIME_ENTRY("w/o", nilruntime_wo),
+    NIL_RUNTIME_ENTRY("r/w", nilruntime_rw),
+    NIL_RUNTIME_ENTRY("file-open", nilruntime_fileopen),
+    NIL_RUNTIME_ENTRY("file-close", nilruntime_fileclose),
+    NIL_RUNTIME_ENTRY("file-pos", nilruntime_filepos),
+    NIL_RUNTIME_ENTRY("file-size", nilruntime_filesize),
+    NIL_RUNTIME_ENTRY("file-read", nilruntime_fileread),
+    NIL_RUNTIME_ENTRY("file-readln", nilruntime_filereadln),
+    NIL_RUNTIME_ENTRY("file-write", nilruntime_filewrite),
+    NIL_RUNTIME_ENTRY("file-writeln", nilruntime_filewriteln),
 };
 // clang-format on
 

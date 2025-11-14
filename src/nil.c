@@ -45,10 +45,11 @@ static bool _nil_compilestring(Nil* self, const char* source, bool ret) {
 static bool _nil_compilefile(Nil* self, const char* filepath, bool ret) {
     if(!filepath) return false;
 
-    NilBuffer* source = nilio_slurpfile(self, filepath);
-    if(!source) return false;
-    bool ok = _nil_compilestring(self, source->data, ret);
-    nilbuffer_destroy(source, self);
+    NilResult src = nilio_fileslurp(self, filepath);
+    if(!nilresult_ok(&src)) return false;
+
+    bool ok = _nil_compilestring(self, src.buffer->data, ret);
+    nilbuffer_destroy(src.buffer, self);
     return ok;
 }
 
@@ -130,7 +131,8 @@ void nil_free(const Nil* self, void* ptr, int size) {
 }
 
 void nil_savecore(const Nil* self, const char* filepath) {
-    NilFile fp = nilio_openfile(filepath, NIO_W);
+    NilResult fp = nilio_fileopen(filepath, NIO_W);
+    if(!nilresult_ok(&fp)) nil_error("cannot save core to '%s'", filepath);
 
     NilCore core = {
         .config =
@@ -147,16 +149,17 @@ void nil_savecore(const Nil* self, const char* filepath) {
         .stroff = self->stroff,
     };
 
-    nilio_writefile(fp, (const char*)&core, sizeof(NilCore));
-    nilio_writefile(fp, self->memory, NIL_MEMORY_SIZE);
-    nilio_closefile(fp);
+    nilio_filewrite(fp.file, (const char*)&core, sizeof(NilCore));
+    nilio_filewrite(fp.file, self->memory, NIL_MEMORY_SIZE);
+    nilio_fileclose(fp.file);
 }
 
 void nil_loadcore(Nil* self, const char* filepath) {
-    NilFile fp = nilio_openfile(filepath, NIO_R);
+    NilResult fp = nilio_fileopen(filepath, NIO_R);
+    if(!nilresult_ok(&fp)) nil_error("cannot load core from '%s'", filepath);
 
     NilCore core;
-    nilio_readfile(fp, (char*)&core, sizeof(NilCore));
+    nilio_fileread(fp.file, (char*)&core, sizeof(NilCore));
 
     if(core.config.cellsize != sizeof(NilCell)) {
         fprintf(stderr, "incompatible CELL size\n");
@@ -183,8 +186,8 @@ void nil_loadcore(Nil* self, const char* filepath) {
         exit(-3);
     }
 
-    nilio_readfile(fp, self->memory, NIL_MEMORY_SIZE);
-    nilio_closefile(fp);
+    nilio_fileread(fp.file, self->memory, NIL_MEMORY_SIZE);
+    nilio_fileclose(fp.file);
 }
 
 bool nil_include(Nil* self, const char* filepath) {

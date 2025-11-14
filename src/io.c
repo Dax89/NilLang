@@ -1,5 +1,7 @@
 #include "io.h"
+#include <errno.h>
 #include <stdlib.h>
+#include <string.h>
 
 static const char* _nilio_modestr(NilIOMode mode) {
     switch(mode) {
@@ -13,44 +15,65 @@ static const char* _nilio_modestr(NilIOMode mode) {
     exit(-2);
 }
 
-NilFile nilio_openfile(const char* filepath, NilIOMode mode) {
+NilResult nilio_fileopen(const char* filepath, NilIOMode mode) {
     NilFile fp = fopen(filepath, _nilio_modestr(mode));
-    if(fp) return fp;
-
-    fprintf(stderr, "NilIO: could not open file \"%s\".\n", filepath);
-    exit(-1);
+    return (NilResult){.file = fp, .err = errno};
 }
 
-NilCell nilio_filesize(NilFile fp) {
-    int oldp = ftell(fp);
+NilResult nilio_filesize(NilFile fp) {
+    long oldp = ftell(fp);
+    if(oldp == -1L) return (NilResult){.err = errno};
+
     fseek(fp, 0, SEEK_END);
-    NilCell sz = ftell(fp);
+
+    long sz = ftell(fp);
+    if(sz == -1L) return (NilResult){.err = errno};
+
     fseek(fp, oldp, SEEK_SET);
-    return sz;
+    return (NilResult){.value = sz, .err = NIL_SUCCESS};
 }
 
-void nilio_writefile(NilFile fp, const char* data, NilCell len) {
-    if(fwrite(data, 1, len, fp) == len) return;
-
-    fprintf(stderr, "NilIO: writing failed");
-    exit(-1);
+NilResult nilio_filepos(NilFile fp) {
+    long pos = ftell(fp);
+    return (NilResult){.value = pos, .err = pos == -1L ? errno : NIL_SUCCESS};
 }
 
-void nilio_readfile(NilFile fp, char* data, NilCell n) {
-    if(fread(data, sizeof(char), n, fp) != n) {
-        fprintf(stderr, "NilIO: reading failed");
-        exit(-1);
-    }
+NilResult nilio_filewrite(NilFile fp, const char* data, NilCell n) {
+    NilCell nw = fwrite(data, 1, n, fp);
+    return (NilResult){.value = nw, .err = nw == n ? NIL_SUCCESS : NIL_FAIL};
 }
 
-void nilio_closefile(NilFile fp) { fclose(fp); }
+NilResult nilio_filewriteln(NilFile fp, const char* data, NilCell n) {
+    NilResult res = nilio_filewrite(fp, data, n);
+    if(nilresult_ok(&res)) return nilio_filewrite(fp, "\n", sizeof("\n") - 1);
+    return res;
+}
 
-NilBuffer* nilio_slurpfile(const Nil* nil, const char* filepath) {
-    NilFile fp = nilio_openfile(filepath, NIO_R);
-    NilBuffer* buffer = nilbuffer_create(nilio_filesize(fp), nil);
-    nilio_readfile(fp, buffer->data, buffer->size);
-    nilio_closefile(fp);
-    return buffer;
+NilResult nilio_fileread(NilFile fp, char* data, NilCell n) {
+    NilCell nr = fread(data, sizeof(char), n, fp);
+    return (NilResult){.value = n, .err = nr == n ? NIL_SUCCESS : NIL_FAIL};
+}
+
+NilResult nilio_filereadln(NilFile fp, char* data, NilCell n) {
+    char* res = fgets(data, n, fp);
+    if(res) return (NilResult){.value = strlen(data), .err = NIL_SUCCESS};
+    if(feof(fp)) return (NilResult){.value = 0, .err = NIL_SUCCESS};
+    return (NilResult){.value = 0, .err = ferror(fp)};
+}
+
+void nilio_fileclose(NilFile fp) { fclose(fp); }
+
+NilResult nilio_fileslurp(const Nil* nil, const char* filepath) {
+    NilResult fp = nilio_fileopen(filepath, NIO_R);
+    if(!nilresult_ok(&fp)) return fp;
+
+    NilResult size = nilio_filesize(fp.file);
+    if(!nilresult_ok(&size)) return size;
+
+    NilBuffer* buffer = nilbuffer_create(size.value, nil);
+    nilio_fileread(fp.file, buffer->data, buffer->size);
+    nilio_fileclose(fp.file);
+    return (NilResult){.buffer = buffer, .err = NIL_SUCCESS};
 }
 
 NilBuffer* nilbuffer_create(NilCell size, const Nil* nil) {

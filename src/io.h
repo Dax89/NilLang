@@ -1,9 +1,13 @@
 #pragma once
 
+#include "types.h"
 #include <nil/nil.h>
 #include <stdio.h>
 
 typedef FILE* NilFile;
+
+#define NIL_SUCCESS NIL_FALSE
+#define NIL_FAIL NIL_TRUE
 
 typedef enum NilIOMode {
     NIO_NONE = 0,
@@ -17,12 +21,29 @@ typedef struct NilFileBuffer {
     char data[];
 } NilBuffer;
 
-NilFile nilio_openfile(const char* filepath, NilIOMode mode);
-NilCell nilio_filesize(NilFile fp);
-void nilio_writefile(NilFile fp, const char* data, NilCell len);
-void nilio_readfile(NilFile fp, char* data, NilCell n);
-void nilio_closefile(NilFile fp);
-NilBuffer* nilio_slurpfile(const Nil* nil, const char* filepath);
+typedef struct NilResult {
+    union {
+        NilBuffer* buffer;
+        NilFile file;
+        NilCell value;
+    };
 
-NilBuffer* nilbuffer_create(NilCell siznile, const Nil* nil);
+    NilCell err;
+} NilResult;
+
+static inline bool nilresult_ok(const NilResult* self) {
+    return self->err == NIL_SUCCESS;
+}
+
+NilResult nilio_fileopen(const char* filepath, NilIOMode mode);
+NilResult nilio_filesize(NilFile fp);
+NilResult nilio_filepos(NilFile fp);
+NilResult nilio_filewrite(NilFile fp, const char* data, NilCell n);
+NilResult nilio_filewriteln(NilFile fp, const char* data, NilCell n);
+NilResult nilio_fileread(NilFile fp, char* data, NilCell n);
+NilResult nilio_filereadln(NilFile fp, char* data, NilCell n);
+void nilio_fileclose(NilFile fp);
+NilResult nilio_fileslurp(const Nil* nil, const char* filepath);
+
+NilBuffer* nilbuffer_create(NilCell size, const Nil* nil);
 void nilbuffer_destroy(NilBuffer* self, Nil* nil);
