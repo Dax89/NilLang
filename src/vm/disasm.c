@@ -3,13 +3,33 @@
 #include "../types.h"
 #include "memory.h"
 #include "vm.h"
+#include <stdarg.h>
 #include <stdio.h>
 
-static void _nilvm_printaddr(Nil* self, NilCell depth) {
-    printf("%08" NIL_CELLXFMT " ", self->vm.ip);
+static void _nilvm_print(NilCell addr, NilCell depth, const char* fmt, ...) {
+    printf("%08" NIL_CELLXFMT " ", addr);
 
     for(NilCell i = 0; i < depth; i++) // Indent
         printf("  ");
+
+    va_list args;
+    va_start(args, fmt);
+    vfprintf(stdout, fmt, args); // forward all arguments
+    va_end(args);
+}
+
+const char* _nilvm_entryname(Nil* self) {
+    NilEntry* e = nilmemory_fromcell(self, self->latest);
+    NilCell ep = self->vm.ip - 1;
+
+    while(e) {
+        if(e->cfa == NCFA_INTERPRET && e->pfa[NPFA_ENTRY] == ep)
+            return nilmemory_fromcell(self, e->name);
+
+        e = nilmemory_fromcell(self, e->link);
+    }
+
+    return "???";
 }
 
 bool nilvm_disasm(Nil* self) {
@@ -18,62 +38,66 @@ bool nilvm_disasm(Nil* self) {
     self->vm.ip = 0;
 
     while(self->vm.ip < self->codeoff) {
-        _nilvm_printaddr(self, depth);
+        NilCell addr = self->vm.ip;
         NilOpCode op = (NilOpCode)nilvm_readbyte(self);
 
         switch(op) {
-            case NILOP_ADD: printf("add\n"); break;
-            case NILOP_SUB: printf("sub\n"); break;
-            case NILOP_MUL: printf("mul\n"); break;
-            case NILOP_DIV: printf("div\n"); break;
-            case NILOP_AND: printf("and\n"); break;
-            case NILOP_OR: printf("or\n"); break;
-            case NILOP_XOR: printf("xor\n"); break;
-            case NILOP_NOT: printf("not\n"); break;
-            case NILOP_SWAP: printf("swap\n"); break;
-            case NILOP_OVER: printf("over\n"); break;
-            case NILOP_ROT: printf("rot\n"); break;
-            case NILOP_DUP: printf("dup\n"); break;
-            case NILOP_LT: printf("lt\n"); break;
-            case NILOP_EQ: printf("eq\n"); break;
-            case NILOP_NOP: printf("nop\n"); break;
-            case NILOP_EMIT: printf("emit\n"); break;
-            case NILOP_FETCH: printf("fetch\n"); break;
-            case NILOP_STORE: printf("store\n"); break;
-            case NILOP_CFETCH: printf("c.fetch\n"); break;
-            case NILOP_CSTORE: printf("c.store\n"); break;
+            case NILOP_ADD: _nilvm_print(addr, depth, "add\n"); break;
+            case NILOP_SUB: _nilvm_print(addr, depth, "sub\n"); break;
+            case NILOP_MUL: _nilvm_print(addr, depth, "mul\n"); break;
+            case NILOP_DIV: _nilvm_print(addr, depth, "div\n"); break;
+            case NILOP_AND: _nilvm_print(addr, depth, "and\n"); break;
+            case NILOP_OR: _nilvm_print(addr, depth, "or\n"); break;
+            case NILOP_XOR: _nilvm_print(addr, depth, "xor\n"); break;
+            case NILOP_NOT: _nilvm_print(addr, depth, "not\n"); break;
+            case NILOP_SWAP: _nilvm_print(addr, depth, "swap\n"); break;
+            case NILOP_OVER: _nilvm_print(addr, depth, "over\n"); break;
+            case NILOP_ROT: _nilvm_print(addr, depth, "rot\n"); break;
+            case NILOP_DUP: _nilvm_print(addr, depth, "dup\n"); break;
+            case NILOP_LT: _nilvm_print(addr, depth, "lt\n"); break;
+            case NILOP_EQ: _nilvm_print(addr, depth, "eq\n"); break;
+            case NILOP_NOP: _nilvm_print(addr, depth, "nop\n"); break;
+            case NILOP_EMIT: _nilvm_print(addr, depth, "emit\n"); break;
+            case NILOP_FETCH: _nilvm_print(addr, depth, "fetch\n"); break;
+            case NILOP_STORE: _nilvm_print(addr, depth, "store\n"); break;
+            case NILOP_CFETCH: _nilvm_print(addr, depth, "c.fetch\n"); break;
+            case NILOP_CSTORE: _nilvm_print(addr, depth, "c.store\n"); break;
 
             case NILOP_ALOAD:
-                printf("a.load #%" NIL_CELLFMT "\n", nilvm_readuleb128(self));
+                _nilvm_print(addr, depth, "a.load #%" NIL_CELLFMT "\n",
+                             nilvm_readuleb128(self));
                 break;
 
             case NILOP_LLOAD:
-                printf("l.load #%" NIL_CELLFMT "\n", nilvm_readuleb128(self));
+                _nilvm_print(addr, depth, "l.load #%" NIL_CELLFMT "\n",
+                             nilvm_readuleb128(self));
                 break;
 
             case NILOP_LOAD:
-                printf("load 0x%" NIL_CELLXFMT "\n", nilvm_readuleb128(self));
+                _nilvm_print(addr, depth, "load 0x%" NIL_CELLXFMT "\n",
+                             nilvm_readuleb128(self));
                 break;
 
             case NILOP_PUSH:
-                printf("push 0x%" NIL_CELLXFMT "\n", nilvm_readuleb128(self));
+                _nilvm_print(addr, depth, "push 0x%" NIL_CELLXFMT "\n",
+                             nilvm_readuleb128(self));
                 break;
 
-            case NILOP_POP:
-                printf("pop %" NIL_CELLXFMT "\n", nilvm_readuleb128(self));
-                break;
+            case NILOP_POP: _nilvm_print(addr, depth, "pop\n"); break;
 
             case NILOP_JMP:
-                printf("jmp #%" NIL_JUMPXFMT "\n", nilvm_readjump(self));
+                _nilvm_print(addr, depth, "jmp #%" NIL_JUMPXFMT "\n",
+                             nilvm_readjump(self));
                 break;
 
             case NILOP_JNT:
-                printf("jnt #%" NIL_JUMPXFMT "\n", nilvm_readjump(self));
+                _nilvm_print(addr, depth, "jnt #%" NIL_JUMPXFMT "\n",
+                             nilvm_readjump(self));
                 break;
 
             case NILOP_ENTER:
-                depth++;
-                printf("enter\n");
+                _nilvm_print(addr, ++depth, "enter (%s)\n",
+                             _nilvm_entryname(self));
                 break;
 
             case NILOP_CALL: {
@@ -82,22 +106,22 @@ bool nilvm_disasm(Nil* self) {
 
                 if(e) {
                     const char* name = nilmemory_fromcell(self, e->name);
-                    printf("call <%s>\n", name);
+                    _nilvm_print(addr, depth, "call <%s>\n", name);
                 }
                 else
-                    printf("call ???\n");
+                    _nilvm_print(addr, depth, "call ???\n");
 
                 break;
             }
 
             case NILOP_RET: {
-                printf("ret\n");
+                _nilvm_print(addr, depth, "ret\n");
                 if(depth > 0) depth--;
                 break;
             }
 
             default:
-                printf("??? %02X\n", op);
+                _nilvm_print(addr, depth, "??? %02X\n", op);
                 self->vm.ip = oldip;
                 return false;
         }
