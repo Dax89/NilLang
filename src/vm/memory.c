@@ -4,8 +4,8 @@
 #include <string.h>
 
 static void _nilmemory_checkaddress(const Nil* self, const void* p) {
-    if((const char*)p < self->memory ||
-       (const char*)p >= self->memory + NIL_MEMORY_SIZE)
+    if((const char*)p < (const char*)self ||
+       (const char*)p >= (const char*)self + sizeof(Nil) + NIL_MEMORY_SIZE)
         nil_error("unknown CELL address %" PRIxPTR, p);
 }
 
@@ -35,20 +35,13 @@ NilCell nilmemory_tocell(const Nil* self, const void* p) {
     if(!p) return 0;
 
     _nilmemory_checkaddress(self, p);
-
-    if((const char*)p < self->memory + NIL_CODE_SIZE)
-        nil_error("address points to code section (tocell)");
-
-    return (NilCell)((const char*)p - self->memory);
+    return (NilCell)((const char*)p - (const char*)self);
 }
 
 void* nilmemory_fromcell(Nil* self, NilCell cell) {
     if(!cell) return 0;
 
-    if(cell < NIL_CODE_SIZE)
-        nil_error("address points to code section (fromcell)");
-
-    char* p = (self->memory + cell);
+    char* p = ((char*)self + cell);
     _nilmemory_checkaddress(self, p);
     return p;
 }

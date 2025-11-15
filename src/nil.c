@@ -46,7 +46,7 @@ static bool _nil_compilefile(Nil* self, const char* filepath, bool ret) {
     if(!filepath) return false;
 
     NilResult src = nilio_fileslurp(self, filepath);
-    if(!nilresult_ok(&src)) return false;
+    if(!nilresult_ok(&src)) nil_error("cannot open '%s'", filepath);
 
     bool ok = _nil_compilestring(self, src.buffer->data, ret);
     nilbuffer_destroy(src.buffer, self);
@@ -65,6 +65,7 @@ Nil* nil_create_ex(NilAllocator alloc, void* ctx) {
     self->latest = 0;
     self->codeoff = 0;
     self->dataoff = NIL_CODE_SIZE;
+    self->vm.base = 10; // Base 10 by default
     self->vm.ip = 0;
     self->vm.fp = 0;
     self->vm.dsp = 0;

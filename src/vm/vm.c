@@ -5,11 +5,13 @@
 #include "memory.h"
 #include "runtime.h"
 #include <assert.h>
+#include <stdio.h>
 
 static void _nilvm_checkaddress(const Nil* nil, const void* ptr) {
+    const char* np = (const char*)nil;
     const char* p = (const char*)ptr;
 
-    if(p >= nil->memory && p < nil->memory + NIL_MEMORY_SIZE) return;
+    if(p >= np && p < np + sizeof(Nil) + NIL_MEMORY_SIZE) return;
 
     if(p >= nil->vm.heap->data && p < nil->vm.heap->data + NIL_HEAP_SIZE)
         return;
@@ -137,6 +139,7 @@ bool nilvm_run(Nil* self) {
             case NILOP_EQ: _nilvm_binary(self, op); break;
 
             case NILOP_NOT: nildstack_push(self, ~nildstack_pop(self)); break;
+            case NILOP_EMIT: putchar((char)nildstack_pop(self)); break;
 
             case NILOP_ALOAD: {
                 NilCell idx = self->vm.fp + nilvm_readuleb128(self);

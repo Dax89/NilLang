@@ -43,6 +43,7 @@ typedef struct Nil {
     void* ctx;          // Allocator context
 
     struct {
+        NilCell base;         // Number conversion radix
         NilCell ip;           // Instruction pointer (pc)
         NilCell dsp;          // Data Stack (top)
         NilCell wsp;          // Word Stack (top)

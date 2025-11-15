@@ -39,7 +39,7 @@ NilResult nilio_filepos(NilFile fp) {
 }
 
 NilResult nilio_filewrite(NilFile fp, const char* data, NilCell n) {
-    NilCell nw = fwrite(data, 1, n, fp);
+    NilCell nw = fwrite(data, sizeof(char), n, fp);
     return (NilResult){.value = nw, .err = nw == n ? NIL_SUCCESS : NIL_FAIL};
 }
 
@@ -47,6 +47,12 @@ NilResult nilio_filewriteln(NilFile fp, const char* data, NilCell n) {
     NilResult res = nilio_filewrite(fp, data, n);
     if(nilresult_ok(&res)) return nilio_filewrite(fp, "\n", sizeof("\n") - 1);
     return res;
+}
+
+NilResult nilio_fileputchar(NilFile fp, char ch) {
+    NilCell nw = fwrite(&ch, 1, sizeof(char), fp);
+    return (NilResult){.value = nw,
+                       .err = nw == sizeof(char) ? NIL_SUCCESS : NIL_FAIL};
 }
 
 NilResult nilio_fileread(NilFile fp, char* data, NilCell n) {
@@ -59,6 +65,16 @@ NilResult nilio_filereadln(NilFile fp, char* data, NilCell n) {
     if(res) return (NilResult){.value = strlen(data), .err = NIL_SUCCESS};
     if(feof(fp)) return (NilResult){.value = 0, .err = NIL_SUCCESS};
     return (NilResult){.value = 0, .err = ferror(fp)};
+}
+
+NilResult nilio_filegetchar(NilFile fp) {
+    char ch;
+    NilCell nr = fread(&ch, sizeof(char), 1, fp);
+
+    return (NilResult){
+        .value = (NilCell)ch,
+        .err = nr == sizeof(char) ? NIL_SUCCESS : NIL_FAIL,
+    };
 }
 
 void nilio_fileclose(NilFile fp) { fclose(fp); }

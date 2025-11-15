@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "types.h"
 #include <limits.h>
 
 char str_toupper(char s) {
@@ -85,4 +86,23 @@ double str_toreal(const char* s, int n) {
     }
 
     return sign * res;
+}
+
+char* str_tobase(const Nil* nil, NilCell v) {
+    static const char DIGITS[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    static char out[67]; // 66+1 for negative sign
+
+    if(nil->vm.base < 2 || nil->vm.base > 36)
+        nil_error("invalid base: %" NIL_CELLFMT, nil->vm.base);
+
+    int c = sizeof(out) - 1;
+    out[c] = 0;
+
+    do {
+        NilCell rem = v % nil->vm.base;
+        v /= nil->vm.base;
+        out[--c] = DIGITS[rem];
+    } while(v > 0);
+
+    return &out[c];
 }

@@ -1,3 +1,21 @@
+word /string  # s n a -- s n
+    dup rot swap -
+    rot rot +
+    swap
+end
+
+word nl 
+    10 emit
+end
+
+word say # s n --
+    begin
+        dup 0 == if break end
+        over c@ emit
+        1 /string
+    repeat
+end
+
 word 2@ ( v )
     v @
     v cell + @ 

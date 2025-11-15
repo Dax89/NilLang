@@ -37,6 +37,7 @@ bool nilvm_disasm(Nil* self) {
             case NILOP_LT: printf("lt\n"); break;
             case NILOP_EQ: printf("eq\n"); break;
             case NILOP_NOP: printf("nop\n"); break;
+            case NILOP_EMIT: printf("emit\n"); break;
             case NILOP_FETCH: printf("fetch\n"); break;
             case NILOP_STORE: printf("store\n"); break;
             case NILOP_CFETCH: printf("c.fetch\n"); break;

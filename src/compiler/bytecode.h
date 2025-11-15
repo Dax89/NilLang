@@ -5,6 +5,7 @@
 // clang-format off
 typedef enum NilOpCode {
     NILOP_NOP = 0, // Unused
+    NILOP_EMIT,
 
     NILOP_CALL, NILOP_ENTER, NILOP_RET, // Procedures
     NILOP_LT, NILOP_EQ, // Comparsisons

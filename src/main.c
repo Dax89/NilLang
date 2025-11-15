@@ -78,6 +78,7 @@ void help(void) {
 
 int main(int argc, char** argv) {
     int nopt;
+    const char* thispath = argv[0];
 
     for(nopt = 1; nopt < argc && argv[nopt][0] == '-'; nopt++) {
         switch(argv[nopt][1]) {
@@ -99,8 +100,16 @@ int main(int argc, char** argv) {
 
     Nil* nil = nil_create();
 
-    if(nopt != argc)
-        nil_runfile(nil, *argv);
+    if(nopt != argc) {
+        // HACK: manually import core
+        char* corepath = get_import_filepath(thispath, "nil/core.nil");
+        nil_include(nil, corepath);
+        free(corepath);
+
+        nil_loadfile(nil, *argv);
+        nil_disasm(nil);
+        nil_run(nil);
+    }
     else
         repl(nil);
 

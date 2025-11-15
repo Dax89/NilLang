@@ -40,8 +40,10 @@ NilResult nilio_filesize(NilFile fp);
 NilResult nilio_filepos(NilFile fp);
 NilResult nilio_filewrite(NilFile fp, const char* data, NilCell n);
 NilResult nilio_filewriteln(NilFile fp, const char* data, NilCell n);
+NilResult nilio_fileputchar(NilFile fp, char ch);
 NilResult nilio_fileread(NilFile fp, char* data, NilCell n);
 NilResult nilio_filereadln(NilFile fp, char* data, NilCell n);
+NilResult nilio_filegetchar(NilFile fp);
 void nilio_fileclose(NilFile fp);
 NilResult nilio_fileslurp(const Nil* nil, const char* filepath);
 

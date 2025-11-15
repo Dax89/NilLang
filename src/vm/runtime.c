@@ -13,7 +13,10 @@
 #define NIL_DUMPLINE 16
 
 static void _nilruntime_checkaddress(const Nil* nil, const void* ptr) {
+    const char* np = (const char*)nil;
     const char* p = (const char*)ptr;
+
+    if(p >= np && p < np + sizeof(Nil) + NIL_MEMORY_SIZE) return;
 
     if(p >= nil->memory && p < nil->memory + NIL_MEMORY_SIZE) return;
 
@@ -27,7 +30,7 @@ static void _nilruntime_checkaddress(const Nil* nil, const void* ptr) {
 }
 
 static void nilruntime_popprint(Nil* nil) {
-    printf("%" NIL_CELLFMT, nil_pop(nil));
+    printf("%s", str_tobase(nil, nil_pop(nil)));
 }
 
 static void nilruntime_printstack(Nil* nil) {
@@ -35,7 +38,7 @@ static void nilruntime_printstack(Nil* nil) {
 
     for(NilCell i = 0; i < nil->vm.dsp; i++) {
         if(i) putchar(' ');
-        printf("%" NIL_CELLFMT, nil->vm.dstack[i]);
+        printf("%s", str_tobase(nil, nil->vm.dstack[i]));
     }
 
     printf(")");
@@ -99,21 +102,8 @@ static void nilruntime_free(Nil* nil) {
     if(p) nilheap_free(nil->vm.heap, (void*)p);
 }
 
-static void nilruntime_say(Nil* nil) {
-    NilCell n = nil_pop(nil);
-    const char* s = (const char*)nil_pop(nil);
-
-    for(NilCell i = 0; i < n; i++)
-        putchar(s[i]);
-}
-
-static void nilruntime_nl(Nil* nil) {
-    NIL_UNUSED(nil);
-    putchar('\n');
-}
-
 static void nilruntime_printcell(Nil* nil) {
-    NilCell* v = (NilCell*)nil_top(nil);
+    NilCell* v = (NilCell*)nil_pop(nil);
     _nilruntime_checkaddress(nil, v);
     printf("%" NIL_CELLFMT, *v);
 }
@@ -249,6 +239,14 @@ static void nilruntime_filereadln(Nil* nil) {
     nil_push(nil, r.err);
 }
 
+static void nilruntime_filegetchar(Nil* nil) {
+    NilFile fp = (NilFile)nil_pop(nil);
+
+    NilResult r = nilio_filegetchar(fp);
+    nil_push(nil, r.value);
+    nil_push(nil, r.err);
+}
+
 static void nilruntime_filewrite(Nil* nil) {
     NilFile fp = (NilFile)nil_pop(nil);
     NilCell n = nil_pop(nil);
@@ -266,6 +264,14 @@ static void nilruntime_filewriteln(Nil* nil) {
 
     NilResult r = nilio_filewriteln(fp, data, n);
     // nil_push(nil, r.value);
+    nil_push(nil, r.err);
+}
+
+static void nilruntime_fileputchar(Nil* nil) {
+    NilFile fp = (NilFile)nil_pop(nil);
+    char ch = (char)nil_pop(nil);
+
+    NilResult r = nilio_fileputchar(fp, ch);
     nil_push(nil, r.err);
 }
 
@@ -304,8 +310,6 @@ static const NilRuntimeEntry NIL_RUNTIME[] = {
     NIL_RUNTIME_ENTRY("allocate", nilruntime_allocate),
     NIL_RUNTIME_ENTRY("reallocate", nilruntime_reallocate),
     NIL_RUNTIME_ENTRY("free", nilruntime_free),
-    NIL_RUNTIME_ENTRY("say", nilruntime_say),
-    NIL_RUNTIME_ENTRY("nl", nilruntime_nl),
 
     // I/O
     NIL_RUNTIME_ENTRY("r/o", nilruntime_ro),
@@ -317,8 +321,10 @@ static const NilRuntimeEntry NIL_RUNTIME[] = {
     NIL_RUNTIME_ENTRY("file-size", nilruntime_filesize),
     NIL_RUNTIME_ENTRY("file-read", nilruntime_fileread),
     NIL_RUNTIME_ENTRY("file-readln", nilruntime_filereadln),
+    NIL_RUNTIME_ENTRY("file-getchar", nilruntime_filegetchar),
     NIL_RUNTIME_ENTRY("file-write", nilruntime_filewrite),
     NIL_RUNTIME_ENTRY("file-writeln", nilruntime_filewriteln),
+    NIL_RUNTIME_ENTRY("file-putchar", nilruntime_fileputchar),
 };
 // clang-format on
 
