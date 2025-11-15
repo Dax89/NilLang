@@ -226,11 +226,10 @@ void nil_over(Nil* self) { nildstack_over(self); }
 void nil_error(const char* fmt, ...) {
     va_list args;
     va_start(args, fmt);
-
     fprintf(stderr, "RUNTIME ERROR: ");
     vfprintf(stderr, fmt, args); // forward all arguments
     fprintf(stderr, "\n");
-
     va_end(args);
+
     exit(1);
 }
