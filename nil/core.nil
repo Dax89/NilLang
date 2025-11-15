@@ -8,6 +8,11 @@ word nl
     10 emit
 end
 
+word hex 16 base ! end
+word dec 10 base ! end
+word oct 8 base ! end
+word bin 2 base ! end
+
 word say # s n --
     begin
         over c@ emit
