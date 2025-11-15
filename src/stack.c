@@ -4,6 +4,7 @@
 #include "vm/memory.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define NIL_DEFINE_STACK_OPS(id, sp, N)                                        \
     NilCell nil##id##_size(const Nil* self) { return self->vm.sp; }            \
@@ -110,6 +111,7 @@ NilCompileInfo* nilcstack_push(Nil* self, NilCompileType t) {
         _nil_stackerror("compile-stack overflow");
 
     NilCompileInfo* nci = &self->c.stack[self->c.sp++];
+    memset((char*)nci, 0, sizeof(NilCompileInfo));
     nci->type = t;
     nci->token = self->c.current;
     return nci;
