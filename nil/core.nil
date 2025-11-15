@@ -10,9 +10,9 @@ end
 
 word say # s n --
     begin
-        dup 0 == if break end
         over c@ emit
         1 /string
+        dup 0 == if break end
     repeat
 end
 
