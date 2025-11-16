@@ -7,7 +7,7 @@
 #include <assert.h>
 #include <stdio.h>
 
-static void _nilvm_checkaddress(const Nil* nil, const void* ptr) {
+static void _nilvm_checkaddress(const Nil* nil, NilCell ip, const void* ptr) {
     const char* np = (const char*)nil;
     const char* p = (const char*)ptr;
 
@@ -19,7 +19,8 @@ static void _nilvm_checkaddress(const Nil* nil, const void* ptr) {
     const char* pstack = (const char*)nil->vm.wstack;
     if(p >= pstack && p < pstack + (NIL_WSTACK_CELLS * sizeof(NilCell))) return;
 
-    nil_error("unknown MEMORY address %" PRIxPTR, ptr);
+    nil_error("unknown MEMORY address %" PRIxPTR " (ip %" NIL_CELLXFMT ")", ptr,
+              ip);
 }
 
 static void _nilvm_binary(Nil* self, NilOpCode op) {
@@ -125,6 +126,7 @@ unsigned char nilvm_readbyte(Nil* self) { return self->memory[self->vm.ip++]; }
 
 bool nilvm_run(Nil* self) {
     for(;;) {
+        NilCell ip = self->vm.ip;
         NilOpCode op = (NilOpCode)nilvm_readbyte(self);
 
         switch(op) {
@@ -162,14 +164,14 @@ bool nilvm_run(Nil* self) {
 
             case NILOP_FETCH: {
                 const NilCell* ptr = (const NilCell*)nildstack_pop(self);
-                _nilvm_checkaddress(self, ptr);
+                _nilvm_checkaddress(self, ip, ptr);
                 nildstack_push(self, *ptr);
                 break;
             }
 
             case NILOP_STORE: {
                 NilCell* ptr = (NilCell*)nildstack_pop(self);
-                _nilvm_checkaddress(self, ptr);
+                _nilvm_checkaddress(self, ip, ptr);
                 *ptr = nil_pop(self);
                 break;
             }
@@ -177,14 +179,14 @@ bool nilvm_run(Nil* self) {
             case NILOP_CFETCH: {
                 const unsigned char* ptr =
                     (const unsigned char*)nildstack_pop(self);
-                _nilvm_checkaddress(self, ptr);
+                _nilvm_checkaddress(self, ip, ptr);
                 nildstack_push(self, *ptr);
                 break;
             }
 
             case NILOP_CSTORE: {
                 unsigned char* ptr = (unsigned char*)nildstack_pop(self);
-                _nilvm_checkaddress(self, ptr);
+                _nilvm_checkaddress(self, ip, ptr);
                 *ptr = (unsigned char)nil_pop(self);
                 break;
             }

@@ -45,6 +45,7 @@ typedef struct NilCompileInfo {
 
         struct {
             bool inarglist;
+            const char* endarg;
             NilEntry* entry;
             NilCell jmp_reloc; // bypass-word jump reloc
         } word;

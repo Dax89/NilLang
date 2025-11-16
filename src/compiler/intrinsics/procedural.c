@@ -52,10 +52,8 @@ void nilintrinsic_word(Nil* self) {
 }
 
 void nilintrinsic_beginargs(Nil* self) {
-    if(!nilcstack_size(self))
-        nilcompiler_error(self, "cannot open an arg-list at top level");
-
     NilCompileInfo* nci = nilcstack_top(self);
+    if(!nci) nilcompiler_error(self, "cannot open an arg-list at top level");
 
     if(nci->type != NCI_WORD) {
         nilcompiler_error(self,
@@ -63,13 +61,12 @@ void nilintrinsic_beginargs(Nil* self) {
     }
 
     nci->word.inarglist = true;
+    nci->word.endarg = "]";
 }
 
 void nilintrinsic_endargs(Nil* self) {
-    if(!nilcstack_size(self))
-        nilcompiler_error(self, "cannot close an arg-list at top level");
-
     NilCompileInfo* nci = nilcstack_top(self);
+    if(!nci) nilcompiler_error(self, "cannot close an arg-list at top level");
 
     if(nci->type != NCI_WORD) {
         nilcompiler_error(

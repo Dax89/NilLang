@@ -14,7 +14,6 @@ static void _nilcompiler_report(const NilToken* token, const char* severity,
 
     switch(token->type) {
         case NILT_EOF: fprintf(stderr, "  Reached EOF\n"); break;
-        case NILT_ERROR: break;
 
         default:
             fprintf(stderr, "  Near '%.*s'\n", token->length, token->value);
@@ -53,7 +52,7 @@ void nilcompiler_advance(Nil* self) {
     self->c.current = nillexer_lex(&self->c.lexer);
 
     if(nilcompiler_check(self, NILT_ERROR))
-        nilcompiler_error(self, self->c.previous.value);
+        nilcompiler_error(self, self->c.current.value);
 }
 
 NilEntry* nilcompiler_findentry(Nil* self, const char* name, NilCell n) {
@@ -73,6 +72,7 @@ static NilLocalEntry* _nilcompiler_checklocal(Nil* self,
                                               const NilCompileInfo* nci,
                                               NilCell localidx,
                                               const char* name, NilCell n) {
+
     NilLocalEntry* e = nilmemory_fromcell(self, nci->word.entry->pfa[localidx]);
 
     while(e) {
@@ -106,6 +106,7 @@ void nilcompiler_checkoverride(Nil* self, const char* name, NilCell n) {
 
 void nilcompiler_definelocal(Nil* self, NilCompileInfo* nci, NilCell ncells,
                              NilCell counteridx, NilCell listidx) {
+
     nilcompiler_checkoverride(self, self->c.current.value,
                               self->c.current.length);
 

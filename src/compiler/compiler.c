@@ -11,6 +11,10 @@ static void _nilcompiler_int(Nil* self) {
     nilop_emit_push(self, v);
 }
 
+static void _nilcompiler_char(Nil* self) {
+    nilop_emit_push(self, self->c.current.value[1]);
+}
+
 static void _nilcompiler_str(Nil* self) {
     // String leading and trailing \"
     NilCell addr = nilstringtable_intern(self, self->c.current.value + 1,
@@ -20,7 +24,10 @@ static void _nilcompiler_str(Nil* self) {
 }
 
 static bool _nilcompiler_argvar(Nil* self, NilCompileInfo* nci) {
-    if(self->c.current.type == NILT_ROUNDCLOSE) return false;
+    if(str_iequals_n(self->c.current.value, self->c.current.length,
+                     nci->word.endarg))
+        return false;
+
     nilcompiler_definelocal(self, nci, 1, NPFA_NARGS, NPFA_ARGS);
     nilcompiler_advance(self);
     return true;
@@ -79,6 +86,7 @@ bool nilcompiler_compile(Nil* self, const char* source, bool ret) {
 
         switch(self->c.current.type) {
             case NILT_INT: _nilcompiler_int(self); break;
+            case NILT_CHAR: _nilcompiler_char(self); break;
             case NILT_STR: _nilcompiler_str(self); break;
 
             default: {

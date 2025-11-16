@@ -2,12 +2,11 @@
 
 // clang-format off
 typedef enum NilTokenType {
-    NILT_INVALID = 0,
-    NILT_WORD,
-    NILT_STR, NILT_INT, NILT_REAL,
-    NILT_ROUNDOPEN, NILT_ROUNDCLOSE,
-    NILT_ERROR, NILT_EOF,
-    NILT_COUNT,
+    NILT_EOF = 0,
+    NILT_IDENTIFIER,
+    NILT_CHAR, NILT_STR, 
+    NILT_INT, NILT_REAL,
+    NILT_ERROR,
 } NilTokenType;
 // clang-format on
 

@@ -33,7 +33,7 @@ static NilIntrinsic nil_intrinsics[] = {
     // procedural
     NIL_INTRINSIC("begin", nilintrinsic_begin), NIL_INTRINSIC("end", nilintrinsic_end),
     NIL_INTRINSIC("word", nilintrinsic_word),
-    NIL_INTRINSIC("(", nilintrinsic_beginargs), NIL_INTRINSIC(")", nilintrinsic_endargs),
+    NIL_INTRINSIC("[", nilintrinsic_beginargs), NIL_INTRINSIC("]", nilintrinsic_endargs),
 
     // memory
     NIL_INTRINSIC("@", nilintrinsic_fetch), NIL_INTRINSIC("!", nilintrinsic_store),
