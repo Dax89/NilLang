@@ -36,6 +36,7 @@ typedef struct NilEntry {
 typedef struct NilLocalEntry {
     NilCell link;
     NilCell name;
+    NilCell ncells;
 } NilLocalEntry;
 
 typedef struct Nil {

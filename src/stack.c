@@ -149,34 +149,45 @@ NilFrameIndex nilcompileinfo_frameindex(const NilCompileInfo* self, Nil* nil,
         return (NilFrameIndex){.value = NIL_WSTACK_CELLS};
 
     NilCell nargs = self->word.entry->pfa[NPFA_NARGS];
+    NilCell nlocals = self->word.entry->pfa[NPFA_NLOCALS];
+    const NilLocalEntry* le = NULL;
 
-    // Check locals
-    const NilLocalEntry* le =
-        nilmemory_fromcell(nil, self->word.entry->pfa[NPFA_LOCALS]);
-    NilCell localidx = 0;
+    if(nlocals) { // Check locals
+        le = nilmemory_fromcell(nil, self->word.entry->pfa[NPFA_LOCALS]);
+        NilCell localidx = 0;
 
-    while(le) {
-        const char* argname = nilmemory_fromcell(nil, le->name);
+        while(le) {
+            const char* argname = nilmemory_fromcell(nil, le->name);
 
-        if(argname && str_iequals_n(name, n, argname))
-            return (NilFrameIndex){.value = nargs + localidx, .isarg = false};
+            if(argname && str_iequals_n(name, n, argname)) {
+                return (NilFrameIndex){
+                    .value = nargs + (nlocals - localidx - le->ncells),
+                    .isarg = false,
+                };
+            }
 
-        le = nilmemory_fromcell(nil, le->link);
-        localidx++;
+            localidx += le->ncells;
+            le = nilmemory_fromcell(nil, le->link);
+        }
     }
 
-    // Check arguments
-    le = nilmemory_fromcell(nil, self->word.entry->pfa[NPFA_ARGS]);
-    NilCell argidx = nargs - 1;
+    if(nargs) { // Check arguments
+        le = nilmemory_fromcell(nil, self->word.entry->pfa[NPFA_ARGS]);
+        NilCell argidx = nargs - 1;
 
-    while(le) {
-        const char* argname = nilmemory_fromcell(nil, le->name);
+        while(le) {
+            const char* argname = nilmemory_fromcell(nil, le->name);
 
-        if(argname && str_iequals_n(name, n, argname))
-            return (NilFrameIndex){.value = argidx, .isarg = true};
+            if(argname && str_iequals_n(name, n, argname)) {
+                return (NilFrameIndex){
+                    .value = argidx,
+                    .isarg = true,
+                };
+            }
 
-        le = nilmemory_fromcell(nil, le->link);
-        argidx--;
+            le = nilmemory_fromcell(nil, le->link);
+            argidx--;
+        }
     }
 
     return (NilFrameIndex){.value = NIL_WSTACK_CELLS};

@@ -114,6 +114,7 @@ void nilcompiler_definelocal(Nil* self, NilCompileInfo* nci, NilCell ncells,
 
     NilLocalEntry* arg = nilmemory_alloc(self, sizeof(NilLocalEntry));
     arg->link = nci->word.entry->pfa[listidx];
+    arg->ncells = ncells;
     arg->name = nilstringtable_intern(self, self->c.current.value,
                                       self->c.current.length);
 
