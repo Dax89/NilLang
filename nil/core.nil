@@ -1,16 +1,16 @@
-word /string  ( s n a -- s n )
-    dup rot swap -
-    rot rot +
-    swap
-end
-
-word cr 10 end
-word nl cr emit end
-
 word hex 16 base ! end
 word dec 10 base ! end
 word oct 8 base ! end
 word bin 2 base ! end
+
+word 2! dup rot swap ! cell + ! end
+word 2@ dup @ swap cell + @ swap end
+
+word pad here 128 + aligned end
+
+word cr 10 end
+word nl cr emit end
+word /string dup rot swap - rot rot + swap end
 
 word say ( s n -- )
     begin
@@ -20,15 +20,4 @@ word say ( s n -- )
     repeat
 
     drop drop
-end
-
-word 2@ [ v ]
-    v @
-    v cell + @ 
-    swap
-end
-
-word 2! [ a b v ]
-    b v ! 
-    a v cell + !
 end
