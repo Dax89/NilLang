@@ -16,3 +16,4 @@ void nilintrinsic_cell(Nil* self);
 void nilintrinsic_cells(Nil* self);
 void nilintrinsic_unused(Nil* self);
 void nilintrinsic_bytes(Nil* self);
+void nilintrinsic_aligned(Nil* self);

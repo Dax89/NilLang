@@ -109,3 +109,8 @@ void nilintrinsic_bytes(Nil* self) {
 void nilintrinsic_unused(Nil* self) {
     nilop_emit_load(self, NIL_DATA_END - self->dataoff);
 }
+
+void nilintrinsic_aligned(Nil* self) {
+    NilCell v = nil_pop(self);
+    nil_push(self, NIL_ALIGNUP(v, sizeof(NilCell)));
+}
