@@ -145,7 +145,7 @@ static void _nillexer_skipall(NilLexer* self) {
             case '\t':
             case '\n':
             case '\r': _nillexer_advance(self); break;
-            case '#': _nillexer_skipuntil(self, '\n'); break;
+            case '\\': _nillexer_skipuntil(self, '\n'); break;
             case '(': _nillexer_skipuntil(self, ')'); break;
             default: return;
         }
